@@ -6,4 +6,8 @@ User = get_user_model()
 class RegisterForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ('username', 'password1', 'password2')
+        fields = ['username', 'password1'] 
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        del self.fields['password2']

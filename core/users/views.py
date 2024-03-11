@@ -9,6 +9,6 @@ def sign_up(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('blogs:home')
+            return redirect('rooms:home')
     form = RegisterForm()
     return render(request, 'registration/sign-up.html', {'form': form})
