@@ -11203,9 +11203,12 @@ body {
 }
 
 /* Custom */
+nav#mainNav {
+  background-color: #383535;
+}
 
-body {
-  background-color: #959595;
+.rooms-section {
+  padding: 20%;
 }
 
 .rooms-container {
@@ -11213,8 +11216,6 @@ body {
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 1rem;
-  margin: 20%;
-  margin-top: 15%;
 }
 
 .user-rooms {
