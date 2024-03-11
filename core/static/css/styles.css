@@ -11201,3 +11201,28 @@ body {
 .footer {
   padding: 5rem 0;
 }
+
+/* Custom */
+
+body {
+  background-color: #959595;
+}
+
+.rooms-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 20%;
+  margin-top: 15%;
+}
+
+.user-rooms {
+  display: flex;
+  flex-direction: column;
+  gap: 5%;
+}
+
+.create-form-container {
+  padding: 15%;
+}
