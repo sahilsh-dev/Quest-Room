@@ -1,6 +1,7 @@
 from django.forms import ModelForm
 from .models import QuestRoom
 
+
 class QuestRoomForm(ModelForm):
     class Meta:
         model = QuestRoom

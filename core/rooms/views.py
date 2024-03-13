@@ -3,9 +3,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .forms import QuestRoomForm
 
+
 def home(request):
-    # if request.user.is_authenticated:
-    #     return redirect('rooms:view_rooms')
+    if request.user.is_authenticated:
+        return redirect('rooms:view_rooms')
     return render(request, 'rooms/home.html')
 
 
