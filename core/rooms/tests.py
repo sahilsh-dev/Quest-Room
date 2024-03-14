@@ -77,6 +77,32 @@ class CreateRoomViewTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.user.rooms.count(), 0)
+        
+    def test_user_cannot_create_same_name_room(self):
+        self.user = User.objects.create_user('test', 'test')
+        self.client.force_login(self.user)
+        response = self.client.post(
+            reverse('rooms:create_room'), {
+                'name': 'Test Room', 
+                'description': 'Test Description', 
+                'expire_days': 10, 
+                'room_type': QuestRoom.RoomType.LEETCODE, 
+                'daily_required_points': 1
+            }
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.user.rooms.count(), 1)
+        response = self.client.post(
+            reverse('rooms:create_room'), {
+                'name': 'Test Room', 
+                'description': 'Test Description', 
+                'expire_days': 10, 
+                'room_type': QuestRoom.RoomType.LEETCODE, 
+                'daily_required_points': 1
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.user.rooms.count(), 1)
     
 
 class QuestRoomModelTests(TestCase):
@@ -135,4 +161,48 @@ class QuestRoomModelTests(TestCase):
             expires_at = timezone.now() + timezone.timedelta(days=10)
         )
         self.assertEqual(room.room_type, QuestRoom.RoomType.LEETCODE)
+        
+    def test_user_cannot_create_same_name_room(self):
+        room = QuestRoom.objects.create(
+            name='Test Room', 
+            description='Test Description', 
+            expire_days=10, 
+            room_type=QuestRoom.RoomType.LEETCODE, 
+            daily_required_points=1,
+            head=self.user,
+            expires_at = timezone.now() + timezone.timedelta(days=10)
+        )
+        with self.assertRaises(Exception):
+            room2 = QuestRoom.objects.create(
+                name='Test Room', 
+                description='Test Description', 
+                expire_days=10, 
+                room_type=QuestRoom.RoomType.LEETCODE, 
+                daily_required_points=1,
+                head=self.user,
+                expires_at = timezone.now() + timezone.timedelta(days=10)
+            )
+            
+    def test_diff_user_can_create_same_name_room(self):
+        room = QuestRoom.objects.create(
+            name='Test Room', 
+            description='Test Description', 
+            expire_days=10, 
+            room_type=QuestRoom.RoomType.LEETCODE, 
+            daily_required_points=1,
+            head=self.user,
+            expires_at = timezone.now() + timezone.timedelta(days=10)
+        )
+        user2 = User.objects.create_user('test2', 'test2')
+        room2 = QuestRoom.objects.create(
+            name='Test Room', 
+            description='Test Description', 
+            expire_days=10, 
+            room_type=QuestRoom.RoomType.LEETCODE, 
+            daily_required_points=1,
+            head=user2,
+            expires_at = timezone.now() + timezone.timedelta(days=10)
+        )
+        self.assertEqual(self.user.rooms.count(), 1)
+        self.assertEqual(user2.rooms.count(), 1)
         

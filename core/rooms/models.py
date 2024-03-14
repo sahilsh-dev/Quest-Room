@@ -7,7 +7,7 @@ class QuestRoom(models.Model):
     class RoomType(models.TextChoices):
         LEETCODE = 'LC', 'LeetCode Quest'
 
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     description = models.TextField()
     room_type = models.CharField(
         choices=RoomType.choices,
@@ -21,6 +21,9 @@ class QuestRoom(models.Model):
     daily_required_points = models.PositiveIntegerField(default=1) 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [['name', 'head']]
 
     def __str__(self):
         return f'{self.head.username} - {self.name}'
