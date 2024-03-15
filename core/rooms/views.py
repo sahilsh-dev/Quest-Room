@@ -1,5 +1,5 @@
 from django.utils import timezone
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .forms import QuestRoomForm
 from .models import QuestRoom
@@ -39,5 +39,5 @@ def create_room(request):
 
 @login_required
 def view_room(request, room_id):
-    room = QuestRoom.objects.get(id=room_id)
+    room = get_object_or_404(QuestRoom, pk=room_id)
     return render(request, 'rooms/view_room.html', {'room': room})
