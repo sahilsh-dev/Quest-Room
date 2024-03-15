@@ -14,7 +14,7 @@ class QuestRoom(models.Model):
         default=RoomType.LEETCODE,
         max_length=2
     )
-    head = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rooms')
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rooms')
     members = models.ManyToManyField(User)
     expire_days = models.PositiveIntegerField(default=1)
     expires_at = models.DateTimeField()
@@ -23,7 +23,7 @@ class QuestRoom(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = [['name', 'head']]
+        unique_together = [['name', 'created_by']]
 
     def __str__(self):
         return f'{self.head.username} - {self.name}'

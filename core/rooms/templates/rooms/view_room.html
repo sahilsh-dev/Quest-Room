@@ -1,0 +1,15 @@
+{% extends 'rooms/base.html' %}
+
+{% block content %}
+    <h1>Room {{ room.id }}</h1>
+    <p>{{ room.description }}</p>
+    <p>Created by {{ room.created_by }}</p>
+    <p>Created at {{ room.created_at }}</p>
+    <p>Members</p>
+    <ul>
+        {% for member in room.members.all %}
+            <li>{{ member.username }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+

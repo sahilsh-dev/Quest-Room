@@ -58,7 +58,7 @@ class CreateRoomViewTests(TestCase):
         self.assertEqual(self.user.rooms.first().name, 'Test Room')
         self.assertEqual(self.user.rooms.first().description, 'Test Description')
         self.assertEqual(self.user.rooms.first().expire_days, 10)
-        self.assertEqual(self.user.rooms.first().head, self.user)
+        self.assertEqual(self.user.rooms.first().created_by, self.user)
         self.assertEqual(self.user.rooms.first().daily_required_points, 1)
         self.assertLessEqual(
             self.user.rooms.first().expires_at, 
@@ -109,17 +109,17 @@ class QuestRoomModelTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('test', 'test')
 
-    def test_creator_is_head(self):
+    def test_creator_is_created_by(self):
         room = QuestRoom.objects.create(
             name='Test Room', 
             description='Test Description', 
             expire_days=10, 
             room_type=QuestRoom.RoomType.LEETCODE, 
             daily_required_points=1,
-            head=self.user,
+            created_by=self.user,
             expires_at = timezone.now() + timezone.timedelta(days=10)
         )
-        self.assertEqual(room.head, self.user)
+        self.assertEqual(room.created_by, self.user)
         
     def test_room_expires_at(self):
         room = QuestRoom.objects.create(
@@ -128,7 +128,7 @@ class QuestRoomModelTests(TestCase):
             expire_days=10, 
             room_type=QuestRoom.RoomType.LEETCODE, 
             daily_required_points=1,
-            head=self.user,
+            created_by=self.user,
             expires_at = timezone.now() + timezone.timedelta(days=10)
         )
         self.assertLessEqual(room.expires_at, timezone.now() + timezone.timedelta(days=10))
@@ -140,7 +140,7 @@ class QuestRoomModelTests(TestCase):
             expire_days=10, 
             room_type=QuestRoom.RoomType.LEETCODE, 
             daily_required_points=1,
-            head=self.user,
+            created_by=self.user,
             expires_at = timezone.now() + timezone.timedelta(days=10)
         )
         self.assertEqual(room.members.count(), 0)
@@ -157,7 +157,7 @@ class QuestRoomModelTests(TestCase):
             expire_days=10, 
             room_type=QuestRoom.RoomType.LEETCODE, 
             daily_required_points=1,
-            head=self.user,
+            created_by=self.user,
             expires_at = timezone.now() + timezone.timedelta(days=10)
         )
         self.assertEqual(room.room_type, QuestRoom.RoomType.LEETCODE)
@@ -169,7 +169,7 @@ class QuestRoomModelTests(TestCase):
             expire_days=10, 
             room_type=QuestRoom.RoomType.LEETCODE, 
             daily_required_points=1,
-            head=self.user,
+            created_by=self.user,
             expires_at = timezone.now() + timezone.timedelta(days=10)
         )
         with self.assertRaises(Exception):
@@ -179,7 +179,7 @@ class QuestRoomModelTests(TestCase):
                 expire_days=10, 
                 room_type=QuestRoom.RoomType.LEETCODE, 
                 daily_required_points=1,
-                head=self.user,
+                created_by=self.user,
                 expires_at = timezone.now() + timezone.timedelta(days=10)
             )
             
@@ -190,7 +190,7 @@ class QuestRoomModelTests(TestCase):
             expire_days=10, 
             room_type=QuestRoom.RoomType.LEETCODE, 
             daily_required_points=1,
-            head=self.user,
+            created_by=self.user,
             expires_at = timezone.now() + timezone.timedelta(days=10)
         )
         user2 = User.objects.create_user('test2', 'test2')
@@ -200,7 +200,7 @@ class QuestRoomModelTests(TestCase):
             expire_days=10, 
             room_type=QuestRoom.RoomType.LEETCODE, 
             daily_required_points=1,
-            head=user2,
+            created_by=user2,
             expires_at = timezone.now() + timezone.timedelta(days=10)
         )
         self.assertEqual(self.user.rooms.count(), 1)
