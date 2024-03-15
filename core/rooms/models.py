@@ -5,7 +5,7 @@ User = get_user_model()
 
 class QuestRoom(models.Model):
     class RoomType(models.TextChoices):
-        LEETCODE = 'LC', 'LeetCode Quest'
+        LEETCODE = 'LC', 'LeetCode'
 
     name = models.CharField(max_length=50)
     description = models.TextField()
@@ -26,4 +26,4 @@ class QuestRoom(models.Model):
         unique_together = [['name', 'created_by']]
 
     def __str__(self):
-        return f'{self.head.username} - {self.name}'
+        return f'{self.created_by.username} - {self.name}'
