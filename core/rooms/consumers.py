@@ -13,9 +13,12 @@ class ChatConsumer(WebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
-        
         self.accept()
         print('User Connected:', self.current_user)
+        self.send(text_data=json.dumps({
+            'type': 'connection_established',
+            'message': 'You are now connected to room - ' + self.room_group_name 
+        }))
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
@@ -38,3 +41,4 @@ class ChatConsumer(WebsocketConsumer):
             'type': 'chat',
             'message': message
         }))
+        

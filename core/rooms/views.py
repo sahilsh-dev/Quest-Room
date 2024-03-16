@@ -31,8 +31,8 @@ def create_room(request):
             room = form.save(commit=False)
             room.created_by = request.user
             room.expires_at = timezone.now() + timezone.timedelta(days=room.expire_days)
-            room.members.add(request.user)
             room.save()
+            room.members.add(request.user)
             return redirect('rooms:view_rooms')
     return render(request, 'rooms/create_room.html', {'form': form})
 
@@ -41,11 +41,10 @@ def create_room(request):
 def view_room(request, room_id):
     room = get_object_or_404(QuestRoom, pk=room_id)
     latest_messages = Message.latest_messages.get_latest_messages(room_id)
-    print()
-    print(latest_messages)
     return render (
         request, 
         'rooms/view_room.html', {
             'room': room,
             'latest_messages': latest_messages,
-        })
+        }
+    )
