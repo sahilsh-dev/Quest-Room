@@ -11231,3 +11231,8 @@ nav#mainNav {
 main {
   padding: 15%;
 }
+
+.message span {
+  font-size: small;
+  color: gray;
+}

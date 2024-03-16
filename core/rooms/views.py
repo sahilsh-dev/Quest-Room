@@ -2,7 +2,7 @@ from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .forms import QuestRoomForm
-from .models import QuestRoom
+from .models import QuestRoom, Message
 
 
 def home(request):
@@ -40,4 +40,12 @@ def create_room(request):
 @login_required
 def view_room(request, room_id):
     room = get_object_or_404(QuestRoom, pk=room_id)
-    return render(request, 'rooms/view_room.html', {'room': room})
+    latest_messages = Message.latest_messages.get_latest_messages(room_id)
+    print()
+    print(latest_messages)
+    return render (
+        request, 
+        'rooms/view_room.html', {
+            'room': room,
+            'latest_messages': latest_messages,
+        })

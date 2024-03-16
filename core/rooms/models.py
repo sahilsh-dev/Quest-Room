@@ -27,3 +27,19 @@ class QuestRoom(models.Model):
 
     def __str__(self):
         return f'{self.created_by.username} - {self.name}'
+        
+
+class LatestMessages(models.Manager):
+    def get_latest_messages(self, room_id, limit=30):
+        return self.filter(room_id=room_id).order_by('-created_at')[:limit]
+
+
+class Message(models.Model):
+    room = models.ForeignKey(QuestRoom, on_delete=models.CASCADE, related_name='messages')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    latest_messages = LatestMessages()
+    
+    def __str__(self):
+        return f'{self.user.username} - {self.room.name} - {self.content[:20]}'
