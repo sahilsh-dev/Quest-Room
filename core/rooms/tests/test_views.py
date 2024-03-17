@@ -123,7 +123,7 @@ class CreateRoomViewTests(TestCase):
         self.assertEqual(self.user.rooms.first().members.first(), self.user)
     
 
-class JoinRoomViewTests(TestCase):
+class RoomDetailViewTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('test', 'test')
         self.room = QuestRoom.objects.create(
@@ -136,18 +136,18 @@ class JoinRoomViewTests(TestCase):
             expires_at = timezone.now() + timezone.timedelta(days=10)
         )
         
-    def test_authenticated_user_can_join_room(self):
+    def test_authenticated_user_can_view_room_detail(self):
         self.client.force_login(self.user)
-        response = self.client.get(reverse('rooms:join_room', args=[self.room.id]))
+        response = self.client.get(reverse('rooms:room_detail', args=[self.room.id]))
         self.assertEqual(response.status_code, 200)
     
     def test_redirects_unauthenticated_user(self):
-        response = self.client.get(reverse('rooms:join_room', args=[self.room.id]))
-        self.assertRedirects(response, f"{reverse('users:login')}?next={reverse('rooms:join_room', args=[self.room.id])}")
+        response = self.client.get(reverse('rooms:room_detail', args=[self.room.id]))
+        self.assertRedirects(response, f"{reverse('users:login')}?next={reverse('rooms:room_detail', args=[self.room.id])}")
         
     def test_room_does_not_exist(self):
         self.client.force_login(self.user)
-        response = self.client.get(reverse('rooms:join_room', args=[self.room.id + 1]))
+        response = self.client.get(reverse('rooms:room_detail', args=[self.room.id + 1]))
         self.assertEqual(response.status_code, 404)
     
     def test_room_messages(self):
@@ -157,7 +157,7 @@ class JoinRoomViewTests(TestCase):
             user=self.user,
             content='Test Message'
         )
-        response = self.client.get(reverse('rooms:join_room', args=[self.room.id]))
+        response = self.client.get(reverse('rooms:room_detail', args=[self.room.id]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['room'], self.room)
         self.assertEqual(response.context['latest_messages'].count(), 1)
@@ -175,7 +175,7 @@ class JoinRoomViewTests(TestCase):
             user=self.user,
             content='Test Message 2'
         )
-        response = self.client.get(reverse('rooms:join_room', args=[self.room.id]))
+        response = self.client.get(reverse('rooms:room_detail', args=[self.room.id]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['room'], self.room)
         self.assertEqual(response.context['latest_messages'].count(), 2)

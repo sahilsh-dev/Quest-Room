@@ -8,6 +8,7 @@ from .models import QuestRoom, Message, RoomCode
 
 ROOM_INVITE_CODE_LENGTH = 7
 
+
 def home(request):
     if request.user.is_authenticated:
         return redirect('rooms:view_rooms')
@@ -42,12 +43,12 @@ def create_room(request):
 
 
 @login_required
-def join_room(request, room_id):
+def room_detail(request, room_id):
     room = get_object_or_404(QuestRoom, pk=room_id)
     latest_messages = Message.latest_messages.get_latest_messages(room_id)
     return render (
         request, 
-        'rooms/join_room.html', {
+        'rooms/room_detail.html', {
             'room': room,
             'latest_messages': latest_messages,
         }
