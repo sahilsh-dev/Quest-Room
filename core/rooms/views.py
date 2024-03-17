@@ -1,3 +1,4 @@
+import secrets
 from django.http import JsonResponse
 from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
@@ -5,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from .forms import QuestRoomForm
 from .models import QuestRoom, Message, RoomCode
 
+ROOM_INVITE_CODE_LENGTH = 7
 
 def home(request):
     if request.user.is_authenticated:
@@ -52,5 +54,12 @@ def join_room(request, room_id):
     )
 
 
+@login_required
 def generate_room_code(request, room_id):
-    return JsonResponse({'code': 1})  #TODO: Implement this view
+    if request.user in get_object_or_404(QuestRoom, pk=room_id).admins.all():
+        upper_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        random_str = ''.join(secrets.choice(upper_chars) for _ in range(ROOM_INVITE_CODE_LENGTH))
+        code = (random_str + str(room_id))[-ROOM_INVITE_CODE_LENGTH:]
+        room_code = RoomCode.objects.create(room_id=room_id, code=code, generated_by=request.user)
+        room_code.save()
+        return JsonResponse({'code': code})

@@ -49,8 +49,8 @@ class Message(models.Model):
 
 
 class RoomCode(models.Model):
-    room = models.OneToOneField(QuestRoom, on_delete=models.CASCADE)
-    code = models.TextField()
+    code = models.CharField(max_length=15, unique=True)
+    room = models.ForeignKey(QuestRoom, on_delete=models.CASCADE, related_name='codes')
     generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
