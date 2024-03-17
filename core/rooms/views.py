@@ -1,8 +1,9 @@
+from django.http import JsonResponse
 from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .forms import QuestRoomForm
-from .models import QuestRoom, Message
+from .models import QuestRoom, Message, RoomCode
 
 
 def home(request):
@@ -33,18 +34,23 @@ def create_room(request):
             room.expires_at = timezone.now() + timezone.timedelta(days=room.expire_days)
             room.save()
             room.members.add(request.user)
+            room.admins.add(request.user)
             return redirect('rooms:view_rooms')
     return render(request, 'rooms/create_room.html', {'form': form})
 
 
 @login_required
-def view_room(request, room_id):
+def join_room(request, room_id):
     room = get_object_or_404(QuestRoom, pk=room_id)
     latest_messages = Message.latest_messages.get_latest_messages(room_id)
     return render (
         request, 
-        'rooms/view_room.html', {
+        'rooms/join_room.html', {
             'room': room,
             'latest_messages': latest_messages,
         }
     )
+
+
+def generate_room_code(request, room_id):
+    return JsonResponse({'code': 1})  #TODO: Implement this view

@@ -13,8 +13,18 @@
             {% endfor %}
         </ul>
         <hr>
-        <h1>Let's Chat</h1>
+        {% if user in room.admins.all %}
+            <h2>Generate Invite Code</h2>
+            <form action="{% url 'rooms:generate_room_code' room.id %}" method="post" id="generateInviteCodeForm">
+                {% csrf_token %}
+                <input type="submit" value="Generate">
+            </form>
+            <br>
+            <p id="roomInviteCode"></p>
+            <hr>
+        {% endif %}
 
+        <h1>Let's Chat</h1>
         <div id="messages">
             {% for message in latest_messages reversed %}
                 <div class="message">
@@ -61,6 +71,22 @@
             form.reset();
         })
 
+        const generateInviteCodeForm = document.querySelector('#generateInviteCodeForm');
+        if (generateInviteCodeForm) {
+            generateInviteCodeForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                fetch(e.target.action, {
+                    method: 'POST',
+                    body: new FormData(e.target)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    const roomInviteCode = document.querySelector('#roomInviteCode');
+                    roomInviteCode.textContent = `Invite Code: ${data.code}`;
+                })
+            })
+        }
     </script>
 {% endblock scripts %}
 

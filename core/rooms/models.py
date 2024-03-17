@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -15,7 +16,8 @@ class QuestRoom(models.Model):
         max_length=2
     )
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rooms')
-    members = models.ManyToManyField(User)
+    admins = models.ManyToManyField(User)
+    members = models.ManyToManyField(User, related_name='joined_rooms')
     expire_days = models.PositiveIntegerField(default=1)
     expires_at = models.DateTimeField()
     daily_required_points = models.PositiveIntegerField(default=1) 
@@ -44,3 +46,16 @@ class Message(models.Model):
     
     def __str__(self):
         return f'{self.user.username} - {self.room.name} - {self.content[:20]}'
+
+
+class RoomCode(models.Model):
+    room = models.OneToOneField(QuestRoom, on_delete=models.CASCADE)
+    code = models.TextField()
+    generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def is_valid(self):
+        return self.created_at + timezone.timedelta(days=self.room.expire_days) > timezone.now()
+    
+    def __str__(self):
+        return f'{self.room.name} - {self.created_at}'
