@@ -45,18 +45,31 @@ def create_room(request):
 @login_required
 def room_detail(request, room_id):
     room = get_object_or_404(QuestRoom, pk=room_id)
-    latest_messages = Message.latest_messages.get_latest_messages(room_id)
-    return render (
-        request, 
-        'rooms/room_detail.html', {
-            'room': room,
-            'latest_messages': latest_messages,
-        }
-    )
+    if request.user in room.members.all():
+        latest_messages = Message.latest_messages.get_latest_messages(room_id)
+        return render (
+            request, 
+            'rooms/room_detail.html', {
+                'room': room,
+                'latest_messages': latest_messages,
+            }
+        )
+    return redirect('rooms:view_rooms')
 
 
 @login_required
-def generate_room_code(request, room_id):
+def join_room(request):
+    if request.method == 'POST':
+        room_code = request.POST.get('room_code')
+        room_code = RoomCode.objects.filter(code=room_code).first()
+        if room_code and room_code.is_valid():
+            room_code.room.members.add(request.user)
+            return redirect('rooms:room_detail', room_id=room_code.room.id)
+    return redirect('rooms:view_rooms')
+
+
+@login_required
+def generate_room_code(request, room_id): 
     if request.user in get_object_or_404(QuestRoom, pk=room_id).admins.all():
         upper_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         random_str = ''.join(secrets.choice(upper_chars) for _ in range(ROOM_INVITE_CODE_LENGTH))

@@ -14,6 +14,13 @@
                 </ul>
             </div>
             <div class="create-room">
+                <h2>Join a room</h2>
+                <form action="{% url 'rooms:join_room' %}" method="post">
+                    {% csrf_token %}
+                    <input type="text" name="room_code" placeholder="Enter a room code" required>
+                    <button class="btn btn-primary" type="submit">Join</button>
+                </form>
+                <hr>
                 <h2>Create a Room</h2>
                 <form action="{% url 'rooms:create_room' %}" method="post">
                     {% csrf_token %}
