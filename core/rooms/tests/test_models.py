@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.utils import timezone
 from django.contrib.auth import get_user_model
-from ..models import QuestRoom
+from ..models import QuestRoom, Message
 
 User = get_user_model()
 
@@ -107,3 +107,45 @@ class QuestRoomModelTests(TestCase):
         self.assertEqual(self.user.rooms.count(), 1)
         self.assertEqual(user2.rooms.count(), 1)
         
+
+class MessageModelTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('test', 'test')
+        self.room = QuestRoom.objects.create(
+            name='Test Room', 
+            description='Test Description', 
+            expire_days=10, 
+            room_type=QuestRoom.RoomType.LEETCODE, 
+            daily_required_points=1,
+            created_by=self.user,
+            expires_at = timezone.now() + timezone.timedelta(days=10)
+        )
+        
+    def test_message(self):
+        message = Message.objects.create(
+            room=self.room,
+            user=self.user,
+            content='Test Message'
+        )
+        self.assertEqual(message.room, self.room)
+        self.assertEqual(message.user, self.user)
+        self.assertEqual(message.content, 'Test Message')
+        self.assertLessEqual(message.created_at, timezone.now())
+        
+    def test_latest_messages(self):
+        message = Message.objects.create(
+            room=self.room,
+            user=self.user,
+            content='Test Message 1'
+        )
+        message2 = Message.objects.create(
+            room=self.room,
+            user=self.user,
+            content='Test Message 2'
+        )
+        latest_messages = Message.latest_messages.get_latest_messages(self.room.id)
+        self.assertEqual(latest_messages.count(), 2)
+        self.assertEqual(latest_messages[0], message2)
+        self.assertEqual(latest_messages[1], message)
+        self.assertEqual(latest_messages[0].content, 'Test Message 2')
+        self.assertEqual(latest_messages[1].content, 'Test Message 1')
