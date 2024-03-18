@@ -149,3 +149,76 @@ class MessageModelTests(TestCase):
         self.assertEqual(latest_messages[1], message)
         self.assertEqual(latest_messages[0].content, 'Test Message 2')
         self.assertEqual(latest_messages[1].content, 'Test Message 1')
+
+
+class RoomCodeModelTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('test', 'test')
+        self.room = QuestRoom.objects.create(
+            name='Test Room', 
+            description='Test Description', 
+            expire_days=10, 
+            room_type=QuestRoom.RoomType.LEETCODE, 
+            daily_required_points=1,
+            created_by=self.user,
+            expires_at = timezone.now() + timezone.timedelta(days=10)
+        )
+        
+    def test_room_code(self):
+        room_code = RoomCode.objects.create(
+            code='TESTCODE',
+            room=self.room,
+            generated_by=self.user
+        )
+        self.assertEqual(room_code.code, 'TESTCODE')
+        self.assertEqual(room_code.room, self.room)
+        self.assertEqual(room_code.generated_by, self.user)
+        self.assertLessEqual(room_code.created_at, timezone.now())
+        
+    def test_room_code_is_valid(self):
+        room_code = RoomCode.objects.create(
+            code='TESTCODE',
+            room=self.room,
+            generated_by=self.user
+        )
+        self.assertTrue(room_code.is_valid())
+        
+    def test_room_code_is_invalid(self):
+        room_code = RoomCode.objects.create(
+            code='TESTCODE',
+            room=self.room,
+            generated_by=self.user
+        )
+        room_code.created_at = timezone.now() - timezone.timedelta(days=11)
+        room_code.save()
+        self.assertFalse(room_code.is_valid())
+        
+    def test_room_code_unique(self):
+        room_code = RoomCode.objects.create(
+            code='TESTCODE',
+            room=self.room,
+            generated_by=self.user
+        )
+        with self.assertRaises(Exception):
+            room_code2 = RoomCode.objects.create(
+                code='TESTCODE',
+                room=self.room,
+                generated_by=self.user
+            )
+            
+    def test_room_code_unique(self):
+        room_code = RoomCode.objects.create(
+            code='TESTCODE',
+            room=self.room,
+            generated_by=self.user
+        )
+        room_code2 = RoomCode.objects.create(
+            code='TESTCODE2',
+            room=self.room,
+            generated_by=self.user
+        )
+        self.assertEqual(self.room.codes.count(), 2)
+        self.assertEqual(self.room.codes.first(), room_code)
+        self.assertEqual(self.room.codes.last(), room_code2)
+        self.assertEqual(self.room.codes.first().code, 'TESTCODE')
+        self.assertEqual(self.room.codes.last().code, 'TESTCODE2')
