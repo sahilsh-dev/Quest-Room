@@ -4,6 +4,11 @@
     <section class="rooms-section">
         <div class="rooms-container">
             <div class="user-rooms">
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="alert alert-{{ message.tags }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
                 <h2>Quest Rooms</h2>
                 <ul>
                     {% for room in rooms %}

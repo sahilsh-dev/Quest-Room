@@ -138,6 +138,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 60  # Two Month
 
+
 LOGIN_REDIRECT_URL = 'rooms:view_rooms'
 LOGIN_URL = 'users:login'
 LOGOUT_REDIRECT_URL = 'users:login'
+
+ROOM_INVITE_CODE_LENGTH = 7
