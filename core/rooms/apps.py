@@ -1,13 +1,13 @@
 from django.apps import AppConfig
-from django.db.models.signals import post_save
-from django.contrib.auth.models import Group
-from guardian.shortcuts import assign_perm
 
 class RoomsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'rooms'
 
     def ready(self):
+        from django.db.models.signals import post_save
+        from guardian.shortcuts import assign_perm
+        from django.contrib.auth.models import Group
         from .models import QuestRoom
         
         def set_room_owner_permissions(sender, instance, **kwargs):

@@ -5,9 +5,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from django.contrib.auth.models import Group
 from .forms import QuestRoomForm
 from .models import QuestRoom, Message, RoomCode
-
 
 def home(request):
     if request.user.is_authenticated:
@@ -71,10 +71,13 @@ def generate_room_code(request, room_id):
 @login_required
 def join_room(request):
     if request.method == 'POST':
-        room_code = request.POST.get('room_code')
-        room_code = RoomCode.objects.filter(code=room_code).first()
+        room_code_text = request.POST.get('room_code')
+        room_code = RoomCode.objects.filter(code=room_code_text).first()
         if room_code and room_code.is_valid():
-            room_code.room.members.add(request.user)
+            room = room_code.room 
+            room.members.add(request.user)
+            room_member_group = Group.objects.get(name=f'Member - Room {room.id}')
+            request.user.groups.add(room_member_group)
             return redirect('rooms:room_detail', room_id=room_code.room.id)
     return redirect('rooms:view_rooms')
 
