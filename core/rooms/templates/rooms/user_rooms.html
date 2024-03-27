@@ -10,8 +10,18 @@
                     {% endfor %}
                 </ul>
                 <h2>Quest Rooms</h2>
+                <h4>Created Rooms</h4>
                 <ul>
-                    {% for room in rooms %}
+                    {% for room in created_rooms %}
+                        <li>
+                            <a href="{% url 'rooms:room_detail' room_id=room.id %}">{{ room.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <br>
+                <h4>Joined Rooms</h4>
+                <ul>
+                    {% for room in joined_rooms %}
                         <li>
                             <a href="{% url 'rooms:room_detail' room_id=room.id %}">{{ room.name }}</a>
                         </li>

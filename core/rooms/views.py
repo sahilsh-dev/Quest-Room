@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.contrib.auth.models import Group
+from guardian.decorators import permission_required_or_403
 from .forms import QuestRoomForm
 from .models import QuestRoom, Message, RoomCode
 
@@ -17,8 +18,15 @@ def home(request):
 
 @login_required
 def view_rooms(request):
-    rooms = request.user.rooms.all()
-    return render(request, 'rooms/user_rooms.html', {'rooms': rooms})
+    created_rooms = request.user.created_rooms.all()
+    joined_rooms = request.user.joined_rooms.all()
+    return render(
+        request, 
+        'rooms/user_rooms.html', {
+            'rooms': created_rooms,
+            'joined_rooms': joined_rooms,
+        }
+    )
 
 
 @login_required
@@ -41,6 +49,7 @@ def create_room(request):
 
 
 @login_required
+@permission_required_or_403('rooms.view_questroom', (QuestRoom, 'id', 'room_id'))
 def room_detail(request, room_id):
     room = get_object_or_404(QuestRoom, pk=room_id)
     if request.user in room.members.all():
@@ -57,6 +66,7 @@ def room_detail(request, room_id):
 
 
 @login_required
+@permission_required_or_403('rooms.can_generate_roomcode', (QuestRoom, 'id', 'room_id'))
 def generate_room_code(request, room_id): 
     if request.method == 'POST' and request.user in get_object_or_404(QuestRoom, pk=room_id).admins.all():
         upper_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
