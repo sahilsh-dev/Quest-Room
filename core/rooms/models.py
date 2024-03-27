@@ -15,7 +15,7 @@ class QuestRoom(models.Model):
         default=RoomType.LEETCODE,
         max_length=2
     )
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rooms')
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_rooms')
     admins = models.ManyToManyField(User)
     members = models.ManyToManyField(User, related_name='joined_rooms')
     expire_days = models.PositiveIntegerField(default=1)
@@ -33,6 +33,7 @@ class QuestRoom(models.Model):
             # Admin User Group Permissions
             ('can_remove_user', 'Can remove user from room'),
             ('can_add_user', 'Can add user to room'),
+            ('can_generate_roomcode', 'Can generate room code'),
         ]
 
     def __str__(self):
