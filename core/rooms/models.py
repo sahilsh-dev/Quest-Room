@@ -26,6 +26,14 @@ class QuestRoom(models.Model):
 
     class Meta:
         unique_together = [['name', 'created_by']]
+        permissions = [
+            # Default User Group Permissions
+            ('can_send_message', 'Can send message in room'),
+
+            # Admin User Group Permissions
+            ('can_remove_user', 'Can remove user from room'),
+            ('can_add_user', 'Can add user to room'),
+        ]
 
     def __str__(self):
         return f'{self.created_by.username} - {self.name}'

@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'guardian',
     'channels',
     'users.apps.UsersConfig',
     'rooms.apps.RoomsConfig',
@@ -110,6 +111,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'users.User'
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend', # default
+    'guardian.backends.ObjectPermissionBackend',
+)
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -143,4 +149,4 @@ LOGIN_REDIRECT_URL = 'rooms:view_rooms'
 LOGIN_URL = 'users:login'
 LOGOUT_REDIRECT_URL = 'users:login'
 
-ROOM_INVITE_CODE_LENGTH = 7
+ROOM_INVITE_CODE_LENGTH = 8

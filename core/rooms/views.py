@@ -36,8 +36,6 @@ def create_room(request):
             room.created_by = request.user
             room.expires_at = timezone.now() + timezone.timedelta(days=room.expire_days)
             room.save()
-            room.members.add(request.user)
-            room.admins.add(request.user)
             return redirect('rooms:view_rooms')
     return render(request, 'rooms/create_room.html', {'form': form})
 
