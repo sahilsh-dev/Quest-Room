@@ -13,7 +13,7 @@
             {% endfor %}
         </ul>
         <hr>
-        {% if user in room.admins.all %}
+        {% if has_perm_generate_roomcode %}
             <h2>Generate Invite Code</h2>
             <form action="{% url 'rooms:generate_room_code' room.id %}" method="post" id="generateInviteCodeForm">
                 {% csrf_token %}
@@ -28,6 +28,7 @@
         <div id="messages">
             {% for message in latest_messages reversed %}
                 <div class="message">
+                    <p>{{ message.user.username }}<br>
                     <p>{{ message.content }}<span> {{ message.created_at }}</span></p>
                 </div>
             {% endfor %}

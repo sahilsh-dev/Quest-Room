@@ -7,8 +7,10 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.contrib.auth.models import Group
 from guardian.decorators import permission_required_or_403
+from guardian.shortcuts import get_objects_for_user
 from .forms import QuestRoomForm
 from .models import QuestRoom, Message, RoomCode
+
 
 def home(request):
     if request.user.is_authenticated:
@@ -44,6 +46,9 @@ def create_room(request):
             room.created_by = request.user
             room.expires_at = timezone.now() + timezone.timedelta(days=room.expire_days)
             room.save()
+            room.admins.add(room.created_by)
+            room.members.add(room.created_by)
+            room.save()
             return redirect('rooms:view_rooms')
     return render(request, 'rooms/create_room.html', {'form': form})
 
@@ -54,11 +59,13 @@ def room_detail(request, room_id):
     room = get_object_or_404(QuestRoom, pk=room_id)
     if request.user in room.members.all():
         latest_messages = Message.latest_messages.get_latest_messages(room_id)
+        has_perm_generate_roomcode = request.user.has_perm('rooms.can_generate_roomcode', room)        
         return render (
             request, 
             'rooms/room_detail.html', {
                 'room': room,
                 'latest_messages': latest_messages,
+                'has_perm_generate_roomcode': has_perm_generate_roomcode,
             }
         )
     messages.error(request, 'You are not a member of this room')
@@ -68,7 +75,7 @@ def room_detail(request, room_id):
 @login_required
 @permission_required_or_403('rooms.can_generate_roomcode', (QuestRoom, 'id', 'room_id'))
 def generate_room_code(request, room_id): 
-    if request.method == 'POST' and request.user in get_object_or_404(QuestRoom, pk=room_id).admins.all():
+    if request.method == 'POST' and request.user:
         upper_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         random_str = ''.join(secrets.choice(upper_chars) for _ in range(settings.ROOM_INVITE_CODE_LENGTH))
         code = (random_str + str(room_id))[-settings.ROOM_INVITE_CODE_LENGTH:]
@@ -90,4 +97,3 @@ def join_room(request):
             request.user.groups.add(room_member_group)
             return redirect('rooms:room_detail', room_id=room_code.room.id)
     return redirect('rooms:view_rooms')
-

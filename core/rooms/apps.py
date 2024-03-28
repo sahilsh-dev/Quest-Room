@@ -12,10 +12,6 @@ class RoomsConfig(AppConfig):
         
         def set_room_permissions(sender, instance, **kwargs):
             if kwargs['created']:
-                instance.admins.add(instance.created_by)
-                instance.members.add(instance.created_by)
-                instance.save()
-
                 member_group, _ = Group.objects.get_or_create(name=f'Member - Room {instance.id}')
                 admin_group, _ = Group.objects.get_or_create(name=f'Admin - Room {instance.id}')
                 assign_perm('rooms.view_questroom', member_group, instance)
