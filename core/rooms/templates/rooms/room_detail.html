@@ -28,8 +28,10 @@
         <div id="messages">
             {% for message in latest_messages reversed %}
                 <div class="message">
-                    <p>{{ message.user.username }}<br>
+                    <p><img src="{% url 'users:get_avatar' message.user.username %}"> 
+                        {{ message.user.username }}</p>
                     <p>{{ message.content }}<span> {{ message.created_at }}</span></p>
+                    <br>
                 </div>
             {% endfor %}
         </div>
@@ -46,17 +48,18 @@
     <script type="text/javascript">
         const url = `ws://${window.location.host}/ws/chat/{{ room.id }}/`;
         const chatSocket = new WebSocket(url);
-
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             console.log(data);
-            
             const messages = document.querySelector('#messages');
             if (data.type === 'chat') {
                 messages.insertAdjacentHTML(
                     'beforeend',
                     `<div class="message">
-                        <p>${data.message}</p>
+                        <p><img src="/user/get_avatar/${data.message.username}">
+                            ${data.message.username}</p>
+                        <p>${data.message.content}<span> ${data.message.message_time}</span></p>
+                        <br>
                     </div>`
                 )
             }

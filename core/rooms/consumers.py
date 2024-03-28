@@ -40,10 +40,13 @@ class ChatConsumer(WebsocketConsumer):
         )
 
     def chat_message(self, event):
-        message = event['message']
-        new_message = Message(room_id=self.room_id, user_id=self.user.id, content=message)
+        new_message = Message(room_id=self.room_id, user_id=self.user.id, content=event['message'])
         new_message.save()
         self.send(text_data=json.dumps({
             'type': 'chat',
-            'message': message
+            'message': {
+                'username': new_message.user.username,
+                'content': new_message.content,
+                'message_time': new_message.created_at.strftime('%H:%M'),
+            }
         }))

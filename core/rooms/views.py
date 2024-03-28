@@ -1,5 +1,5 @@
 import secrets
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -7,7 +7,6 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.contrib.auth.models import Group
 from guardian.decorators import permission_required_or_403
-from guardian.shortcuts import get_objects_for_user
 from .forms import QuestRoomForm
 from .models import QuestRoom, Message, RoomCode
 
