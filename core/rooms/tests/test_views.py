@@ -57,14 +57,14 @@ class CreateRoomViewTests(TestCase):
             }
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(self.user.rooms.count(), 1)
-        self.assertEqual(self.user.rooms.first().name, 'Test Room')
-        self.assertEqual(self.user.rooms.first().description, 'Test Description')
-        self.assertEqual(self.user.rooms.first().expire_days, 10)
-        self.assertEqual(self.user.rooms.first().created_by, self.user)
-        self.assertEqual(self.user.rooms.first().daily_required_points, 1)
+        self.assertEqual(self.user.created_rooms.count(), 1)
+        self.assertEqual(self.user.created_rooms.first().name, 'Test Room')
+        self.assertEqual(self.user.created_rooms.first().description, 'Test Description')
+        self.assertEqual(self.user.created_rooms.first().expire_days, 10)
+        self.assertEqual(self.user.created_rooms.first().created_by, self.user)
+        self.assertEqual(self.user.created_rooms.first().daily_required_points, 1)
         self.assertLessEqual(
-            self.user.rooms.first().expires_at, 
+            self.user.created_rooms.first().expires_at, 
             timezone.now() + timezone.timedelta(days=10)
         )
         
@@ -78,7 +78,7 @@ class CreateRoomViewTests(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.user.rooms.count(), 0)
+        self.assertEqual(self.user.created_rooms.count(), 0)
         
     def test_user_cannot_create_same_name_room(self):
         self.client.force_login(self.user)
@@ -92,7 +92,7 @@ class CreateRoomViewTests(TestCase):
             }
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(self.user.rooms.count(), 1)
+        self.assertEqual(self.user.created_rooms.count(), 1)
         response = self.client.post(
             reverse('rooms:create_room'), {
                 'name': 'Test Room', 
@@ -103,7 +103,7 @@ class CreateRoomViewTests(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.user.rooms.count(), 1)
+        self.assertEqual(self.user.created_rooms.count(), 1)
     
     def test_rooom_owner_is_added_to_members(self):
         self.client.force_login(self.user)
@@ -117,9 +117,9 @@ class CreateRoomViewTests(TestCase):
             }
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(self.user.rooms.count(), 1)
-        self.assertEqual(self.user.rooms.first().members.count(), 1)
-        self.assertEqual(self.user.rooms.first().members.first(), self.user)
+        self.assertEqual(self.user.created_rooms.count(), 1)
+        self.assertEqual(self.user.created_rooms.first().members.count(), 1)
+        self.assertEqual(self.user.created_rooms.first().members.first(), self.user)
     
     def test_room_owner_is_added_to_admins(self):
         self.client.force_login(self.user)
@@ -197,17 +197,12 @@ class RoomDetailViewTests(TestCase):
         self.assertEqual(response.context['latest_messages'][0].room_id, self.room.id)
         self.assertEqual(response.context['latest_messages'][1].room_id, self.room.id)
 
-    def test_user_not_member_of_room(self):
+    def test_non_member_cannot_view_room(self):
         user2 = User.objects.create_user('test2', 'test2')
         self.client.force_login(user2)
         response = self.client.get(reverse('rooms:room_detail', args=[self.room.id]))
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('rooms:view_rooms'))
+        self.assertEqual(response.status_code, 403)
 
-        messages = list(response.wsgi_request._messages)
-        self.assertEqual(len(messages), 1)
-        self.assertEqual(str(messages[0]), 'You are not a member of this room')
-        
 
 class GenerateRoomCodeViewTests(TestCase):
     def setUp(self):
@@ -241,11 +236,11 @@ class GenerateRoomCodeViewTests(TestCase):
             f"{reverse('users:login')}?next={reverse('rooms:generate_room_code', args=[self.room.id])}"
         )
 
-    def test_user_not_admin_gets_error_jsonresponse(self):
+    def test_non_admins_cannot_generate_roomcode(self):
         user2 = User.objects.create_user('test2', 'test2')
         self.client.force_login(user2)
         response = self.client.post(reverse('rooms:generate_room_code', args=[self.room.id]))
-        self.assertEqual(response.json(), {'error': 'Only admins can generate room code'})
+        self.assertEqual(response.status_code, 403)
 
 
 class JoinRoomViewTests(TestCase):

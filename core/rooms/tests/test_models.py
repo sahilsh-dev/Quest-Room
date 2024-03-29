@@ -104,8 +104,8 @@ class QuestRoomModelTests(TestCase):
             created_by=user2,
             expires_at = timezone.now() + timezone.timedelta(days=10)
         )
-        self.assertEqual(self.user.rooms.count(), 1)
-        self.assertEqual(user2.rooms.count(), 1)
+        self.assertEqual(self.user.created_rooms.count(), 1)
+        self.assertEqual(user2.created_rooms.count(), 1)
         
 
 class MessageModelTests(TestCase):

@@ -75,7 +75,7 @@ def room_detail(request, room_id):
 @login_required
 @permission_required_or_403('rooms.can_generate_roomcode', (QuestRoom, 'id', 'room_id'))
 def generate_room_code(request, room_id): 
-    if request.method == 'POST' and request.user:
+    if request.method == 'POST':
         upper_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         random_str = ''.join(secrets.choice(upper_chars) for _ in range(settings.ROOM_INVITE_CODE_LENGTH))
         code = (random_str + str(room_id))[-settings.ROOM_INVITE_CODE_LENGTH:]
