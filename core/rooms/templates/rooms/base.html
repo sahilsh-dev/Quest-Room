@@ -30,7 +30,7 @@
                         <li class="nav-item"><a class="nav-link" href="#projects">Rooms</a></li>
                         {% if request.user.is_authenticated %}
                             <li class="nav-item">
-                                <form action="{% url 'users:logout' %}" method="post">
+                                <form id="user-logout-btn" action="{% url 'users:logout' %}" method="post">
                                     {% csrf_token %}
                                     <button type="submit" class="nav-link bg-dark">Logout {{ request.user.username }}</button>
                                 </form>

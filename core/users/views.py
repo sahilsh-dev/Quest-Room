@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, get_user_model
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import cache_control
 from avatar_generator import Avatar
 from .forms import RegisterForm
 
@@ -20,6 +21,7 @@ def sign_up(request):
 
 
 @login_required
+@cache_control(max_age=3600)
 def get_avatar(request, username):
     avatar = Avatar.generate(64, username, 'PNG')
     response = HttpResponse(avatar, content_type='image/png')

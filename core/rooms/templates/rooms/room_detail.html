@@ -48,7 +48,7 @@
 
 {% block scripts %}
     <script type="text/javascript">
-        const url = `ws://${window.location.host}/ws/chat/{{ room.id }}/`;
+        const url = `wss://${window.location.host}/ws/chat/{{ room.id }}/`;
         const chatSocket = new WebSocket(url);
         const currentUsername = '{{ request.user.username }}';
 
@@ -57,7 +57,6 @@
             console.log(data);
             const messages = document.querySelector('#messages');
             if (data.type === 'chat') {
-                console.log(data.message.username == currentUsername ? 'user-message': 'others-message');
                 messages.insertAdjacentHTML(
                     'beforeend',
                     `<div class="message ${data.message.username == currentUsername ? 'user-message': 'others-message'}">
@@ -68,6 +67,10 @@
                 )
             }
         }
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
 
         const sendMessageForm = document.querySelector('#send-message-form');
         sendMessageForm.addEventListener('submit', (e) => {
