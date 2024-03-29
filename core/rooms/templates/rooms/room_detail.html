@@ -41,7 +41,7 @@
 
         <form id="send-message-form">
             <input type="text" name="message">
-            <input type="submit">
+            <input type="submit" value="Send">
         </form>
     </main>
 {% endblock content %}
@@ -54,7 +54,6 @@
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            console.log(data);
             const messages = document.querySelector('#messages');
             if (data.type === 'chat') {
                 messages.insertAdjacentHTML(
@@ -62,7 +61,15 @@
                     `<div class="message ${data.message.username == currentUsername ? 'user-message': 'others-message'}">
                         <p><img src="/user/get_avatar/${data.message.username}">
                             ${data.message.username}</p>
-                        <p>${data.message.content}<span> ${data.message.message_time}</span></p>
+                        <p>${data.message.content} <span> ${data.message.message_time}</span></p>
+                    </div>`
+                )
+            }
+            else if (data.type === 'user_joined') {
+                messages.insertAdjacentHTML(
+                    'beforeend',
+                    `<div class="message user-joined-message">
+                        <p>${data.message.content} <span> ${data.message.message_time}</span> </p>
                     </div>`
                 )
             }

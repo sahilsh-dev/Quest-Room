@@ -1,4 +1,5 @@
 import json
+from django.utils import timezone
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 from .models import Message, QuestRoom
@@ -25,6 +26,14 @@ class ChatConsumer(WebsocketConsumer):
             'type': 'connection_established',
             'message': 'You are now connected to room - ' + self.room_group_name 
         }))
+        async_to_sync(self.channel_layer.group_send) (
+            self.room_group_name, {
+                'type': 'user_joined_message',
+                'content': f'{self.user.username} connected to the room',
+                'message_time': timezone.now().strftime('%H:%M'),
+            }
+        )
+        
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
@@ -35,7 +44,7 @@ class ChatConsumer(WebsocketConsumer):
         print('New Message Saved: ', new_message)
         async_to_sync(self.channel_layer.group_send) (
             self.room_group_name, {
-                'type': 'chat.message',
+                'type': 'chat_message',
                 'username': self.user.username,
                 'content': new_message.content,
                 'message_time': new_message.get_message_time(),
@@ -47,6 +56,15 @@ class ChatConsumer(WebsocketConsumer):
             'type': 'chat',
             'message': {
                 'username': event['username'],
+                'content': event['content'],
+                'message_time': event['message_time'],
+            }
+        }))
+
+    def user_joined_message(self, event):
+        self.send(text_data=json.dumps({
+            'type': 'user_joined',
+            'message': {
                 'content': event['content'],
                 'message_time': event['message_time'],
             }

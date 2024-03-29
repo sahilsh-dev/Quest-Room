@@ -11250,6 +11250,13 @@ main>h1 {
   margin: 3% 0;
 }
 
+.user-joined-message {
+  width: 50%;
+  margin: auto;
+  text-align: center;
+  background-color: lightgreen;
+}
+
 #messages {
   display: flex;
   flex-direction: column;

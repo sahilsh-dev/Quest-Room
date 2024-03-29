@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-pwu=bpaup**29*h+kz0a4s&)c08^br-bh()9mp0n&lds^ssumb
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+
 CSRF_TRUSTED_ORIGINS = ['https://girl-developing-with-elegant.trycloudflare.com']
 
 
