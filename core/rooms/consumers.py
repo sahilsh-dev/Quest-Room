@@ -11,7 +11,6 @@ class ChatConsumer(WebsocketConsumer):
         self.room = QuestRoom.objects.get(id=self.room_id)
 
         has_perm_send_message = self.user.has_perm('rooms.can_send_message', self.room)
-        print('New user has send message permission :', has_perm_send_message)
         if not self.user.is_authenticated or not self.room or not has_perm_send_message:
             self.close()
             return
@@ -30,7 +29,7 @@ class ChatConsumer(WebsocketConsumer):
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
-        print(message)
+        print('User:', self.user.username, '->', message)
 
         async_to_sync(self.channel_layer.group_send) (
             self.room_group_name, {
@@ -42,6 +41,7 @@ class ChatConsumer(WebsocketConsumer):
     def chat_message(self, event):
         new_message = Message(room_id=self.room_id, user_id=self.user.id, content=event['message'])
         new_message.save()
+        print('New Message Saved: ', new_message)
         self.send(text_data=json.dumps({
             'type': 'chat',
             'message': {

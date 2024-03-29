@@ -27,20 +27,22 @@
         <h1>Let's Chat</h1>
         <div id="messages">
             {% for message in latest_messages reversed %}
-                <div class="message">
+                {% if message.user == request.user %}
+                <div class="message user-message">
+                {% else %}
+                <div class="message others-message">
+                {% endif %}
                     <p><img src="{% url 'users:get_avatar' message.user.username %}"> 
                         {{ message.user.username }}</p>
-                    <p>{{ message.content }}<span> {{ message.created_at }}</span></p>
-                    <br>
+                    <p>{{ message.content }}<span> {{ message.get_message_time }}</span></p>
                 </div>
             {% endfor %}
         </div>
 
-        <form id="form">
+        <form id="send-message-form">
             <input type="text" name="message">
             <input type="submit">
         </form>
-    
     </main>
 {% endblock content %}
 
@@ -48,31 +50,33 @@
     <script type="text/javascript">
         const url = `ws://${window.location.host}/ws/chat/{{ room.id }}/`;
         const chatSocket = new WebSocket(url);
+        const currentUsername = '{{ request.user.username }}';
+
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             console.log(data);
             const messages = document.querySelector('#messages');
             if (data.type === 'chat') {
+                console.log(data.message.username == currentUsername ? 'user-message': 'others-message');
                 messages.insertAdjacentHTML(
                     'beforeend',
-                    `<div class="message">
+                    `<div class="message ${data.message.username == currentUsername ? 'user-message': 'others-message'}">
                         <p><img src="/user/get_avatar/${data.message.username}">
                             ${data.message.username}</p>
                         <p>${data.message.content}<span> ${data.message.message_time}</span></p>
-                        <br>
                     </div>`
                 )
             }
         }
 
-        const form = document.querySelector('#form');
-        form.addEventListener('submit', (e) => {
+        const sendMessageForm = document.querySelector('#send-message-form');
+        sendMessageForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const message = e.target.message.value;
             chatSocket.send(JSON.stringify({
                 message: message
             }))
-            form.reset();
+            sendMessageForm.reset();
         })
 
         const generateInviteCodeForm = document.querySelector('#generateInviteCodeForm');
@@ -85,7 +89,6 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);
                     const roomInviteCode = document.querySelector('#roomInviteCode');
                     roomInviteCode.textContent = `Invite Code: ${data.code}`;
                 })
@@ -93,4 +96,3 @@
         }
     </script>
 {% endblock scripts %}
-

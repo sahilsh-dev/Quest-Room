@@ -19,12 +19,13 @@ def home(request):
 
 @login_required
 def view_rooms(request):
-    created_rooms = request.user.created_rooms.all()
-    joined_rooms = request.user.joined_rooms.all()
+    created_rooms = QuestRoom.objects.filter(created_by=request.user)
+    joined_rooms = QuestRoom.objects.filter(members=request.user)
+    joined_rooms = joined_rooms.exclude(created_by=request.user)
     return render(
         request, 
         'rooms/user_rooms.html', {
-            'rooms': created_rooms,
+            'created_rooms': created_rooms,
             'joined_rooms': joined_rooms,
         }
     )

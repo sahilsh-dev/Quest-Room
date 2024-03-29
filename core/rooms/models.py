@@ -24,6 +24,9 @@ class QuestRoom(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f'{self.created_by.username} - {self.name}'
+        
     class Meta:
         unique_together = [['name', 'created_by']]
         permissions = [
@@ -36,9 +39,6 @@ class QuestRoom(models.Model):
             ('can_generate_roomcode', 'Can generate room code'),
         ]
 
-    def __str__(self):
-        return f'{self.created_by.username} - {self.name}'
-        
 
 class LatestMessages(models.Manager):
     def get_latest_messages(self, room_id, limit=30):
@@ -54,8 +54,11 @@ class Message(models.Model):
     latest_messages = LatestMessages()
     
     def __str__(self):
-        return f'{self.user.username} - {self.room.name} - {self.content[:20]}'
+        return f'{self.user.username} - {self.content[:20]}'
 
+    def get_message_time(self):
+        return self.created_at.strftime('%H:%M')
+    
 
 class RoomCode(models.Model):
     code = models.CharField(max_length=15, unique=True)
