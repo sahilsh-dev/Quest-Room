@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-CSRF_TRUSTED_ORIGINS = ['https://girl-developing-with-elegant.trycloudflare.com']
+# CSRF_TRUSTED_ORIGINS = ['https://hazard-agreements-hometown-internship.trycloudflare.com']
 
 
 # Application definition

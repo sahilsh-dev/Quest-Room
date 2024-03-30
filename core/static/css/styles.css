@@ -168,7 +168,6 @@ h6, .h6 {
 }
 
 p {
-  margin-top: 0;
   margin-bottom: 1rem;
 }
 
@@ -11250,11 +11249,18 @@ main>h1 {
   margin: 3% 0;
 }
 
-.user-joined-message {
-  width: 50%;
+.system-message {
+  width: 60%;
   margin: auto;
   text-align: center;
+}
+
+.user-connected-message {
   background-color: lightgreen;
+}
+
+.socket-closed-message {
+  background-color: lightcoral;
 }
 
 #messages {

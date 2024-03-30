@@ -28,7 +28,7 @@ class ChatConsumer(WebsocketConsumer):
         }))
         async_to_sync(self.channel_layer.group_send) (
             self.room_group_name, {
-                'type': 'user_joined_message',
+                'type': 'user_connected_message',
                 'content': f'{self.user.username} connected to the room',
                 'message_time': timezone.now().strftime('%H:%M'),
             }
@@ -61,9 +61,9 @@ class ChatConsumer(WebsocketConsumer):
             }
         }))
 
-    def user_joined_message(self, event):
+    def user_connected_message(self, event):
         self.send(text_data=json.dumps({
-            'type': 'user_joined',
+            'type': 'user_connected',
             'message': {
                 'content': event['content'],
                 'message_time': event['message_time'],

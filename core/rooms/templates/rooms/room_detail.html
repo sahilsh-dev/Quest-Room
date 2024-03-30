@@ -48,7 +48,8 @@
 
 {% block scripts %}
     <script type="text/javascript">
-        const url = `wss://${window.location.host}/ws/chat/{{ room.id }}/`;
+        // Set to use ws on local development
+        const url = `ws://${window.location.host}/ws/chat/{{ room.id }}/`; 
         const chatSocket = new WebSocket(url);
         const currentUsername = '{{ request.user.username }}';
 
@@ -65,10 +66,10 @@
                     </div>`
                 )
             }
-            else if (data.type === 'user_joined') {
+            else if (data.type === 'user_connected') {
                 messages.insertAdjacentHTML(
                     'beforeend',
-                    `<div class="message user-joined-message">
+                    `<div class="message system-message user-connected-message">
                         <p>${data.message.content} <span> ${data.message.message_time}</span> </p>
                     </div>`
                 )
@@ -77,6 +78,12 @@
 
         chatSocket.onclose = function(e) {
             console.error('Chat socket closed unexpectedly');
+            messages.insertAdjacentHTML(
+                'beforeend',
+                `<div class="message system-message socket-closed-message">
+                    <p>Connection Closed Unexpectedly. Try relodading the page..</p>
+                </div>`
+            )
         };
 
         const sendMessageForm = document.querySelector('#send-message-form');
