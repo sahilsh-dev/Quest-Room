@@ -74,6 +74,14 @@
                     </div>`
                 )
             }
+            else if (data.type === 'user_left') {
+                messages.insertAdjacentHTML(
+                    'beforeend',
+                    `<div class="message system-message user-left-message">
+                        <p>${data.message.username} left the chat <span> ${data.message.message_time}</span> </p>
+                    </div>`
+                )
+            }
         }
 
         chatSocket.onclose = function(e) {

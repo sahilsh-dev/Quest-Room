@@ -11286,3 +11286,7 @@ main>h1 {
   justify-content: flex-end; 
   padding: 2%;
 }
+
+.user-left-message {
+  background-color: lightblue;
+}

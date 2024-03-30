@@ -33,7 +33,6 @@ class ChatConsumer(WebsocketConsumer):
                 'message_time': timezone.now().strftime('%H:%M'),
             }
         )
-        
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
@@ -49,6 +48,19 @@ class ChatConsumer(WebsocketConsumer):
                 'content': new_message.content,
                 'message_time': new_message.get_message_time(),
             }
+        )
+
+    def disconnect(self, error_code):
+        async_to_sync(self.channel_layer.group_send) (
+            self.room_group_name, {
+                'type': 'user_left_message',
+                'username': self.user.username,
+                'message_time': timezone.now().strftime('%H:%M'),
+            }
+        )
+        async_to_sync(self.channel_layer.group_discard)(
+            self.room_group_name, 
+            self.channel_name
         )
 
     def chat_message(self, event):
@@ -70,8 +82,11 @@ class ChatConsumer(WebsocketConsumer):
             }
         }))
 
-    def disconnect(self, close_code):
-        async_to_sync(self.channel_layer.group_discard)(
-            self.room_group_name, 
-            self.channel_name
-        )
+    def user_left_message(self, event):
+        self.send(text_data=json.dumps({
+            'type': 'user_left',
+            'message': {
+                'username': event['username'],
+                'message_time': event['message_time']
+            }
+        }))
