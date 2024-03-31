@@ -112,18 +112,29 @@ def make_room_member_admin(request, room_id):
     if request.method == 'POST':
         room = get_object_or_404(QuestRoom, pk=room_id)
         member_user = get_object_or_404(User, pk=request.POST.get('member_id'))
-        print(member_user)
         if member_user in room.members.all():
             if member_user in room.admins.all():
                 messages.error(request, 'User is already an admin')
                 return redirect('rooms:room_detail', room_id=room_id)
             room.admins.add(member_user)
-            print(room.admins.all())
             room_admin_group = Group.objects.get(name=f'Admin - Room {room.id}')
             room_admin_group.user_set.add(member_user)
             messages.success(request, 'User is now an admin')
     return redirect('rooms:room_detail', room_id=room_id)
 
 
+@permission_required('rooms.can_remove_user', (QuestRoom, 'id', 'room_id'))
 def remove_room_member(request, room_id):
-    pass
+    if request.method == 'POST':
+        room = get_object_or_404(QuestRoom, pk=room_id)
+        member_user = get_object_or_404(User, pk=request.POST.get('member_id'))
+        if member_user in room.members.all():
+            if member_user in room.admins.all():
+                messages.error(request, 'Admin cannot be removed')
+                return redirect('rooms:room_detail', room_id=room_id)
+            room.members.remove(member_user)
+            room_member_group = Group.objects.get(name=f'Member - Room {room.id}')
+            room_member_group.user_set.remove(member_user)
+            messages.success(request, 'User removed from room')
+    return redirect('rooms:room_detail', room_id=room_id)
+        
