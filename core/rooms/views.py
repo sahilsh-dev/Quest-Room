@@ -59,12 +59,16 @@ def room_detail(request, room_id):
     room = get_object_or_404(QuestRoom, pk=room_id)
     if request.user in room.members.all():
         latest_messages = Message.latest_messages.get_latest_messages(room_id)
+        has_perm_make_admin = request.user.has_perm('rooms.can_make_admin', room)
+        has_perm_remove_user = request.user.has_perm('rooms.can_remove_user', room)
         has_perm_generate_roomcode = request.user.has_perm('rooms.can_generate_roomcode', room)        
         return render (
             request, 
             'rooms/room_detail.html', {
                 'room': room,
                 'latest_messages': latest_messages,
+                'has_perm_make_admin': has_perm_make_admin,
+                'has_perm_remove_user': has_perm_remove_user,
                 'has_perm_generate_roomcode': has_perm_generate_roomcode,
             }
         )

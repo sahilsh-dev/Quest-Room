@@ -36,6 +36,7 @@ class QuestRoom(models.Model):
             # Admin User Group Permissions
             ('can_remove_user', 'Can remove user from room'),
             ('can_add_user', 'Can add user to room'),
+            ('can_make_admin', 'Can make room member admin'),
             ('can_generate_roomcode', 'Can generate room code'),
         ]
 

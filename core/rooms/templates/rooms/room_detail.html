@@ -7,11 +7,21 @@
         <p>Created by: {{ room.created_by.username }}</p>
         <p>Created at: {{ room.created_at }}</p>
         <p>Members:</p>
-        <ul>
-            {% for member in room.members.all %}
-                <li>{{ member.username }}</li>
-            {% endfor %}
-        </ul>
+        <form action="", method="POST">
+            <ul>
+                {% for member in room.members.all %}
+                    <li>
+                        {{ member.username }} 
+                        {% if has_perm_make_admin and member not in room.admins.all %}
+                            <input type="submit" value="Make Admin">
+                        {% endif %}
+                        {% if has_perm_remove_user and member not in room.admins.all %}
+                            <input type="submit" value="Remove from room">
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </form>
         <hr>
         {% if has_perm_generate_roomcode %}
             <h2>Generate Invite Code</h2>
@@ -98,6 +108,9 @@
         sendMessageForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const message = e.target.message.value;
+            if (message.trim() === '') {
+                return;
+            }
             chatSocket.send(JSON.stringify({
                 message: message
             }))

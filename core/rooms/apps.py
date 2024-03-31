@@ -21,6 +21,7 @@ class RoomsConfig(AppConfig):
                 assign_perm('rooms.can_add_user', admin_group, instance)
                 assign_perm('rooms.can_remove_user', admin_group, instance)
                 assign_perm('rooms.can_generate_roomcode', admin_group, instance)
+                assign_perm('rooms.can_make_admin', admin_group, instance)
 
                 admin_group.user_set.add(instance.created_by)
                 member_group.user_set.add(instance.created_by)
