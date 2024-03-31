@@ -4,11 +4,13 @@
     <section class="rooms-section">
         <div class="rooms-container">
             <div class="user-rooms">
+                {% if messages %}
                 <ul class="messages">
                     {% for message in messages %}
-                        <li class="alert alert-{{ message.tags }}">{{ message }}</li>
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
                     {% endfor %}
                 </ul>
+                {% endif %}
                 <h2>Quest Rooms</h2>
                 <h4>Created Rooms</h4>
                 <ul>

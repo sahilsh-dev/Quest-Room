@@ -6,22 +6,44 @@
         <p>Description: {{ room.description }}</p>
         <p>Created by: {{ room.created_by.username }}</p>
         <p>Created at: {{ room.created_at }}</p>
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
         <p>Members:</p>
-        <form action="", method="POST">
-            <ul>
-                {% for member in room.members.all %}
-                    <li>
-                        {{ member.username }} 
-                        {% if has_perm_make_admin and member not in room.admins.all %}
+        <ul>
+            {% for member in room.members.all %}
+                <li>
+                    {{ member.username }}
+                    {% if member == request.user %}
+                        (You)
+                    {% endif %}
+                    {% if member in room.admins.all %}
+                        (Admin)
+                    {% endif %}
+                    {% if member == room.created_by %}
+                        (Owner)
+                    {% endif %}
+                    {% if has_perm_make_admin and member not in room.admins.all %}
+                        <form action="{% url 'rooms:make_room_member_admin' room.id %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="member_id" value="{{ member.id }}">
                             <input type="submit" value="Make Admin">
-                        {% endif %}
-                        {% if has_perm_remove_user and member not in room.admins.all %}
+                        </form>
+                    {% endif %}
+                    {% if has_perm_remove_user and member not in room.admins.all %}
+                        <form action="{% url 'rooms:remove_room_member' room.id %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="member_id" value="{{ member.id }}">
                             <input type="submit" value="Remove from room">
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-        </form>
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
         <hr>
         {% if has_perm_generate_roomcode %}
             <h2>Generate Invite Code</h2>

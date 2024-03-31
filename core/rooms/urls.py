@@ -8,5 +8,7 @@ urlpatterns = [
     path('rooms/create/', views.create_room, name='create_room'),
     path('rooms/join/', views.join_room, name='join_room'),
     path('rooms/<int:room_id>/', views.room_detail, name='room_detail'),
-    path('rooms/<int:room_id>/code/', views.generate_room_code, name='generate_room_code'),
+    path('rooms/<int:room_id>/code/', views.generate_roomcode, name='generate_room_code'),
+    path('rooms/<int:room_id>/make_admin/', views.make_room_member_admin, name='make_room_member_admin'),
+    path('rooms/<int:room_id>/remove_member/', views.remove_room_member, name='remove_room_member'),
 ]

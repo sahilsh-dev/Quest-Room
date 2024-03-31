@@ -5,10 +5,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from guardian.decorators import permission_required_or_403
+from guardian.decorators import permission_required, permission_required_or_403
 from .forms import QuestRoomForm
 from .models import QuestRoom, Message, RoomCode
+
+User = get_user_model()
 
 
 def home(request):
@@ -77,8 +80,8 @@ def room_detail(request, room_id):
 
 
 @login_required
-@permission_required_or_403('rooms.can_generate_roomcode', (QuestRoom, 'id', 'room_id'))
-def generate_room_code(request, room_id): 
+@permission_required('rooms.can_generate_roomcode', (QuestRoom, 'id', 'room_id'))
+def generate_roomcode(request, room_id): 
     if request.method == 'POST':
         upper_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         random_str = ''.join(secrets.choice(upper_chars) for _ in range(settings.ROOM_INVITE_CODE_LENGTH))
@@ -101,3 +104,26 @@ def join_room(request):
             request.user.groups.add(room_member_group)
             return redirect('rooms:room_detail', room_id=room_code.room.id)
     return redirect('rooms:view_rooms')
+
+
+@login_required
+@permission_required('rooms.can_make_admin', (QuestRoom, 'id', 'room_id'))
+def make_room_member_admin(request, room_id):
+    if request.method == 'POST':
+        room = get_object_or_404(QuestRoom, pk=room_id)
+        member_user = get_object_or_404(User, pk=request.POST.get('member_id'))
+        print(member_user)
+        if member_user in room.members.all():
+            if member_user in room.admins.all():
+                messages.error(request, 'User is already an admin')
+                return redirect('rooms:room_detail', room_id=room_id)
+            room.admins.add(member_user)
+            print(room.admins.all())
+            room_admin_group = Group.objects.get(name=f'Admin - Room {room.id}')
+            room_admin_group.user_set.add(member_user)
+            messages.success(request, 'User is now an admin')
+    return redirect('rooms:room_detail', room_id=room_id)
+
+
+def remove_room_member(request, room_id):
+    pass
