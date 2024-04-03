@@ -35,14 +35,11 @@ class ChatConsumer(WebsocketConsumer):
                 'message_time': user_connected_time.strftime('%H:%M'),
             }
         )
-        user_connected_message = Message.objects.create (
-            room_id=self.room_id,
-            user=self.user,
-            content=f'{self.user.username} connected to the room',
-            message_type=Message.MessageType.USER_CONNECTED,
+        self.save_message(
+            content = f'{self.user.username} connected to the room',
+            type = Message.MessageType.USER_CONNECTED,
             created_at=user_connected_time
-        )    
-        user_connected_message.save()
+        )
             
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
@@ -57,14 +54,11 @@ class ChatConsumer(WebsocketConsumer):
                 'message_time': message_time.strftime('%H:%M'),
             }
         )
-        chat_message = Message.objects.create (
-            room_id=self.room_id, 
-            user=self.user, 
-            content=message, 
-            message_type=Message.MessageType.CHAT,
+        self.save_message(
+            content=message,
+            type=Message.MessageType.CHAT,
             created_at=message_time
         )
-        chat_message.save()
 
     def disconnect(self, error_code):
         message_time = timezone.now()
@@ -75,14 +69,11 @@ class ChatConsumer(WebsocketConsumer):
                 'message_time': message_time.strftime('%H:%M'),
             }
         )
-        user_left_message = Message.objects.create (
-            room_id=self.room_id, 
-            user=self.user, 
-            content=f'{self.user.username} left the room', 
-            message_type=Message.MessageType.USER_LEFT,
+        self.save_message(
+            content=f'{self.user.username} left the room',
+            type=Message.MessageType.USER_LEFT,
             created_at=message_time
         )
-        user_left_message.save()
         async_to_sync(self.channel_layer.group_discard)(
             self.room_group_name, 
             self.channel_name
@@ -115,3 +106,13 @@ class ChatConsumer(WebsocketConsumer):
                 'message_time': event['message_time']
             }
         }))
+
+    def save_message(self, content, type, created_at):
+        message = Message.objects.create (
+            room_id=self.room_id, 
+            user=self.user, 
+            content=content,
+            message_type=type,
+            created_at=created_at
+        )
+        message.save()
