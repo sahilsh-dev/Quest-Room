@@ -236,11 +236,11 @@ class GenerateRoomCodeViewTests(TestCase):
             f"{reverse('users:login')}?next={reverse('rooms:generate_room_code', args=[self.room.id])}"
         )
 
-    def test_non_admins_cannot_generate_roomcode(self):
+    def test_non_admins_are_redirected(self):
         user2 = User.objects.create_user('test2', 'test2')
         self.client.force_login(user2)
         response = self.client.post(reverse('rooms:generate_room_code', args=[self.room.id]))
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 302)
 
 
 class JoinRoomViewTests(TestCase):

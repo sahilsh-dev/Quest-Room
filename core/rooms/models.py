@@ -47,9 +47,20 @@ class LatestMessages(models.Manager):
 
 
 class Message(models.Model):
+    class MessageType(models.TextChoices):
+        CHAT = 'CH', 'Chat'
+        USER_CONNECTED = 'UC', 'User Connected'
+        USER_JOINED = 'UJ', 'User Joined'
+        USER_LEFT = 'UL', 'User Left'
+        
     room = models.ForeignKey(QuestRoom, on_delete=models.CASCADE, related_name='messages')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
+    message_type = models.CharField(
+        choices=MessageType.choices,
+        default=MessageType.CHAT,
+        max_length=2
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     objects = models.Manager()
     latest_messages = LatestMessages()

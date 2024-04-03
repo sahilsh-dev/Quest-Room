@@ -59,15 +59,25 @@
         <h1>Let's Chat</h1>
         <div id="messages">
             {% for message in latest_messages reversed %}
-                {% if message.user == request.user %}
-                <div class="message user-message">
-                {% else %}
-                <div class="message others-message">
+                {% if message.message_type == 'CH' %}
+                    {% if message.user == request.user %}
+                    <div class="message user-message">
+                    {% else %}
+                    <div class="message others-message">
+                    {% endif %}
+                        <p><img src="{% url 'users:get_avatar' message.user.username %}"> 
+                            {{ message.user.username }}</p>
+                        <p>{{ message.content }}<span> {{ message.get_message_time }}</span></p>
+                    </div>
+                {% elif message.message_type == 'UC' %}
+                    <div class="message system-message user-connected-message">
+                        <p>{{ message.content }}<span> {{ message.get_message_time }}</span></p>
+                    </div>
+                {% elif message.message_type == 'UL' %}
+                    <div class="message system-message user-left-message">
+                        <p>{{ message.content }}<span> {{ message.get_message_time }}</span></p>
+                    </div>
                 {% endif %}
-                    <p><img src="{% url 'users:get_avatar' message.user.username %}"> 
-                        {{ message.user.username }}</p>
-                    <p>{{ message.content }}<span> {{ message.get_message_time }}</span></p>
-                </div>
             {% endfor %}
         </div>
 
@@ -80,7 +90,7 @@
 
 {% block scripts %}
     <script type="text/javascript">
-        // Set to use ws on local development
+        // Set to use ws on local development, wss on production
         const url = `ws://${window.location.host}/ws/chat/{{ room.id }}/`; 
         const chatSocket = new WebSocket(url);
         const currentUsername = '{{ request.user.username }}';
@@ -110,7 +120,7 @@
                 messages.insertAdjacentHTML(
                     'beforeend',
                     `<div class="message system-message user-left-message">
-                        <p>${data.message.username} left the chat <span> ${data.message.message_time}</span> </p>
+                        <p>${data.message.content} <span> ${data.message.message_time}</span> </p>
                     </div>`
                 )
             }
