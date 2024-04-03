@@ -150,6 +150,23 @@ class MessageModelTests(TestCase):
         self.assertEqual(latest_messages[0].content, 'Test Message 2')
         self.assertEqual(latest_messages[1].content, 'Test Message 1')
 
+    def test_message_type_default(self):
+        message = Message.objects.create(
+            room=self.room,
+            user=self.user,
+            content='Test Message',
+        )
+        self.assertEqual(message.message_type, Message.MessageType.CHAT)
+    
+    def test_message_type_user_connected(self):
+        message = Message.objects.create(
+            room=self.room,
+            user=self.user,
+            content='Test Message',
+            message_type=Message.MessageType.USER_CONNECTED
+        )
+        self.assertEqual(message.message_type, Message.MessageType.USER_CONNECTED)
+    
 
 class RoomCodeModelTests(TestCase):
     def setUp(self):
