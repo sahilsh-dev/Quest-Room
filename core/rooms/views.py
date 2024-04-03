@@ -120,6 +120,8 @@ def make_room_member_admin(request, room_id):
             room_admin_group = Group.objects.get(name=f'Admin - Room {room.id}')
             room_admin_group.user_set.add(member_user)
             messages.success(request, 'User is now an admin')
+        else:
+            messages.error(request, 'User is not a member of this room')
     return redirect('rooms:room_detail', room_id=room_id)
 
 
@@ -136,5 +138,7 @@ def remove_room_member(request, room_id):
             room_member_group = Group.objects.get(name=f'Member - Room {room.id}')
             room_member_group.user_set.remove(member_user)
             messages.success(request, 'User removed from room')
+        else:
+            messages.error(request, 'User is not a member of this room')
     return redirect('rooms:room_detail', room_id=room_id)
         

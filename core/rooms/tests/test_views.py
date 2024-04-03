@@ -274,3 +274,78 @@ class JoinRoomViewTests(TestCase):
         response = self.client.post(self.url, {'room_code': 'TESTCODE'})
         self.assertEqual(response.status_code, 302)  # Redirects to 'rooms:room_detail'
         self.assertTrue(self.room.members.filter(id=self.user.id).exists())
+
+
+class MakeRoomMemberAdminViewTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(username='test', password='test')
+        self.room = QuestRoom.objects.create(
+            name='Test Room', 
+            description='Test Description', 
+            expire_days=10, 
+            room_type=QuestRoom.RoomType.LEETCODE, 
+            daily_required_points=1,
+            created_by=self.user,
+            expires_at = timezone.now() + timezone.timedelta(days=10)
+        )
+        self.room.members.add(self.user)
+        self.room.admins.add(self.user)
+        self.url = reverse('rooms:make_room_member_admin', args=[self.room.id])
+
+    def test_non_admin_cannot_make_admin(self):
+        user2 = get_user_model().objects.create_user('test2', 'test2')
+        self.room.members.add(user2)
+        self.client.force_login(user2)
+        response = self.client.post(self.url, {'room_id':self.room.id, 'member_id': user2.id})
+        self.assertRedirects(response, f"{reverse('users:login')}?next={self.url}")
+        self.assertFalse(self.room.admins.filter(id=user2.id).exists())       
+
+    def test_non_member_cannot_be_made_admin(self):
+        user2 = get_user_model().objects.create_user('test2', 'test2')
+        self.client.force_login(self.user)
+        response = self.client.post(self.url, {'room_id':self.room.id, 'member_id': user2.id})
+        self.assertRedirects(response, reverse('rooms:room_detail', args=[self.room.id]))
+        self.assertFalse(self.room.admins.filter(id=user2.id).exists())
+
+    def test_admin_can_make_member_admin(self):
+        user2 = get_user_model().objects.create_user('test2', 'test2')
+        self.room.members.add(user2)
+        self.client.force_login(self.user)
+        response = self.client.post(self.url, {'room_id':self.room.id, 'member_id': user2.id})
+        self.assertRedirects(response, reverse('rooms:room_detail', args=[self.room.id]))
+        self.assertTrue(self.room.admins.filter(id=user2.id).exists())
+
+
+class RemoveRoomMemberViewTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(username='test', password='test')
+        self.room = QuestRoom.objects.create(
+            name='Test Room', 
+            description='Test Description', 
+            expire_days=10, 
+            room_type=QuestRoom.RoomType.LEETCODE, 
+            daily_required_points=1,
+            created_by=self.user,
+            expires_at = timezone.now() + timezone.timedelta(days=10)
+        )
+        self.room.members.add(self.user)
+        self.room.admins.add(self.user)
+        self.url = reverse('rooms:remove_room_member', args=[self.room.id])
+
+    def test_non_admin_cannot_remove_member(self):
+        user2 = get_user_model().objects.create_user('test2', 'test2')
+        self.room.members.add(user2)
+        self.client.force_login(user2)
+        response = self.client.post(self.url, {'room_id':self.room.id, 'member_id': user2.id})
+        self.assertRedirects(response, f"{reverse('users:login')}?next={self.url}")
+        self.assertTrue(self.room.members.filter(id=user2.id).exists())
+
+    def test_admin_can_remove_member(self):
+        user2 = get_user_model().objects.create_user('test2', 'test2')
+        self.room.members.add(user2)
+        self.client.force_login(self.user)
+        response = self.client.post(self.url, {'room_id':self.room.id, 'member_id': user2.id})
+        self.assertRedirects(response, reverse('rooms:room_detail', args=[self.room.id]))
+        self.assertFalse(self.room.members.filter(id=user2.id).exists())
+        self.assertFalse(self.room.admins.filter(id=user2.id).exists()) 
+        
