@@ -6,8 +6,10 @@ Automat==22.10.0
 avatar-generator==0.4.2
 billiard==4.2.0
 celery==5.3.6
+certifi==2024.2.2
 cffi==1.16.0
 channels==4.0.0
+charset-normalizer==3.3.2
 click==8.1.7
 click-didyoumean==0.3.1
 click-plugins==1.1.1
@@ -30,6 +32,7 @@ pycparser==2.21
 pyOpenSSL==24.1.0
 python-dateutil==2.9.0.post0
 redis==5.0.3
+requests==2.31.0
 service-identity==24.1.0
 six==1.16.0
 sqlparse==0.4.4
@@ -37,6 +40,7 @@ Twisted==24.3.0
 txaio==23.1.1
 typing_extensions==4.10.0
 tzdata==2024.1
+urllib3==2.2.1
 vine==5.1.0
 wcwidth==0.2.13
 zope.interface==6.2

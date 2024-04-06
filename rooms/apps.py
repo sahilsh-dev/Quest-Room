@@ -10,7 +10,7 @@ class RoomsConfig(AppConfig):
         from django.contrib.auth.models import Group
         from .models import QuestRoom
         
-        def set_room_permissions(sender, instance, **kwargs):
+        def setup_room_permissions(sender, instance, **kwargs):
             if kwargs['created']:
                 member_group, _ = Group.objects.get_or_create(name=f'Member - Room {instance.id}')
                 admin_group, _ = Group.objects.get_or_create(name=f'Admin - Room {instance.id}')
@@ -25,5 +25,7 @@ class RoomsConfig(AppConfig):
 
                 admin_group.user_set.add(instance.created_by)
                 member_group.user_set.add(instance.created_by)
+                instance.admins.add(instance.created_by)
+                instance.members.add(instance.created_by)
                 
-        post_save.connect(set_room_permissions, sender=QuestRoom)
+        post_save.connect(setup_room_permissions, sender=QuestRoom)

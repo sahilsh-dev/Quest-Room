@@ -7,9 +7,11 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+
 from guardian.decorators import permission_required, permission_required_or_403
 from .forms import QuestRoomForm
 from .models import QuestRoom, Message, RoomCode
+from .tasks import set_initial_scores_task
 
 User = get_user_model()
 
@@ -48,9 +50,6 @@ def create_room(request):
             room = form.save(commit=False)
             room.created_by = request.user
             room.expires_at = timezone.now() + timezone.timedelta(days=room.expire_days)
-            room.save()
-            room.admins.add(room.created_by)
-            room.members.add(room.created_by)
             room.save()
             return redirect('rooms:view_rooms')
     return render(request, 'rooms/create_room.html', {'form': form})
@@ -102,6 +101,7 @@ def join_room(request):
             room.members.add(request.user)
             room_member_group = Group.objects.get(name=f'Member - Room {room.id}')
             request.user.groups.add(room_member_group)
+            set_initial_scores_task.delay(room.id, request.user.id)
             return redirect('rooms:room_detail', room_id=room_code.room.id)
     return redirect('rooms:view_rooms')
 
