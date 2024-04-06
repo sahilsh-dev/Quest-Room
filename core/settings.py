@@ -28,7 +28,7 @@ DEBUG = os.environ.get('DEBUG', False)
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1').split(',')
 
-# CSRF_TRUSTED_ORIGINS = ['https://cabinets-look-girl-derek.trycloudflare.com']
+# CSRF_TRUSTED_ORIGINS = []
 
 
 # Application definition

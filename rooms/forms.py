@@ -4,4 +4,5 @@ from .models import QuestRoom
 class QuestRoomForm(forms.ModelForm):
     class Meta:
         model = QuestRoom
-        fields = ['name', 'description', 'expire_days', 'room_type', 'daily_required_points']
+        fields = ['name', 'description', 'expire_days', 'room_type']
+

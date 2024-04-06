@@ -4,6 +4,7 @@ from django.utils import timezone
 
 User = get_user_model()
 
+
 class QuestRoom(models.Model):
     class RoomType(models.TextChoices):
         LEETCODE = 'LC', 'LeetCode'
@@ -39,6 +40,16 @@ class QuestRoom(models.Model):
             ('can_make_admin', 'Can make room member admin'),
             ('can_generate_roomcode', 'Can generate room code'),
         ]
+
+
+class QuestRoomScore(models.Model):
+    room = models.OneToOneField(QuestRoom, on_delete=models.CASCADE, related_name='score')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    last_updated = models.DateTimeField(auto_now=True)
+    total_solved = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f'{self.room.name} - {self.user.username} - {self.points}'
 
 
 class LatestMessages(models.Manager):
