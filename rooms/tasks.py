@@ -3,6 +3,7 @@ from .models import QuestRoom, RoomCode
 from django.utils import timezone
 
 
+@shared_task
 def remove_expired_items():
     QuestRoom.objects.filter(expires_at__lt=timezone.now()).delete()
     RoomCode.objects.filter(expires_at__lt=timezone.now()).delete()

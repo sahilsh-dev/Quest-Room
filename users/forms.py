@@ -6,7 +6,8 @@ User = get_user_model()
 class RegisterForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ['username', 'password1'] 
+        # TODO: validate leetcode username
+        fields = ['username', 'password1', 'leetcode_username'] 
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

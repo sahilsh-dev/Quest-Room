@@ -45,8 +45,8 @@ class QuestRoom(models.Model):
 class QuestRoomScore(models.Model):
     room = models.OneToOneField(QuestRoom, on_delete=models.CASCADE, related_name='score')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    last_updated = models.DateTimeField(auto_now=True)
     total_solved = models.PositiveIntegerField()
+    last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'{self.room.name} - {self.user.username} - {self.points}'

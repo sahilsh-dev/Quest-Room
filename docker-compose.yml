@@ -20,7 +20,6 @@ services:
 
   celery:
     container_name: celery
-    restart: always
     build: 
       context: ./
     command: celery --app=core worker -l INFO -B
