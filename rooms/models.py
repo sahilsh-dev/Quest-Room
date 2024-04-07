@@ -52,6 +52,9 @@ class QuestRoomScore(models.Model):
     def __str__(self):
         return f'{self.room.name} - {self.user.username} - {self.score} - {self.score_before_joining}'
 
+    class Meta:
+        unique_together = [['room', 'user']]
+
 
 class LatestMessages(models.Manager):
     def get_latest_messages(self, room_id, limit=30):

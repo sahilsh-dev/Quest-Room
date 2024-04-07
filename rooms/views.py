@@ -10,7 +10,7 @@ from django.contrib.auth.models import Group
 
 from guardian.decorators import permission_required, permission_required_or_403
 from .forms import QuestRoomForm
-from .models import QuestRoom, Message, RoomCode
+from .models import QuestRoom, Message, RoomCode, QuestRoomScore
 from .tasks import set_initial_scores_task
 
 User = get_user_model()
@@ -138,6 +138,7 @@ def remove_room_member(request, room_id):
             room.members.remove(member_user)
             room_member_group = Group.objects.get(name=f'Member - Room {room.id}')
             room_member_group.user_set.remove(member_user)
+            QuestRoomScore.objects.filter(room=room, user=member_user).delete()
             messages.success(request, 'User removed from room')
         else:
             messages.error(request, 'User is not a member of this room')

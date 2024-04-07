@@ -23,10 +23,3 @@ def set_initial_scores_task(room_id, user_id):
             print(f"Saved initial score {score}")
             return True 
     return False
-
-
-# def update_questroom_scores(room):
-#     url = "https://leetcode-stats-api.herokuapp.com/"
-#     room_scores = QuestRoom.objects.filter(room=room)
-#     for user_score in room_scores:
-#         response = requests.get(url + user_score.user)
