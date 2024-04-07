@@ -50,7 +50,7 @@ class QuestRoomScore(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f'{self.room.name} - {self.user.username} - {self.points}'
+        return f'{self.room.name} - {self.user.username} - {self.score} - {self.score_before_joining}'
 
 
 class LatestMessages(models.Manager):

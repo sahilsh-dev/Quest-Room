@@ -16,14 +16,12 @@ def set_initial_scores_task(room_id, user_id):
     url = "https://leetcode-stats-api.herokuapp.com/" +  user.leetcode_username
     response = requests.get(url)    
     if response.status_code == 200:
-        print("Success code")
         data = response.json()
-        if data.stats == 'success':
+        if data['status'] == 'success':
             score = QuestRoomScore.objects.create(room_id=room_id, user=user, score_before_joining=data['totalSolved'])
             score.save()
-            print("Saved", score)
+            print(f"Saved initial score {score}")
             return True 
-    print("Failed")
     return False
 
 

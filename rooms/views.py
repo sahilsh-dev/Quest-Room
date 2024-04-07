@@ -51,6 +51,7 @@ def create_room(request):
             room.created_by = request.user
             room.expires_at = timezone.now() + timezone.timedelta(days=room.expire_days)
             room.save()
+            set_initial_scores_task.delay(room.id, request.user.id)
             return redirect('rooms:view_rooms')
     return render(request, 'rooms/create_room.html', {'form': form})
 
