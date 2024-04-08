@@ -43,7 +43,7 @@ class QuestRoom(models.Model):
 
 
 class QuestRoomScore(models.Model):
-    room = models.OneToOneField(QuestRoom, on_delete=models.CASCADE, related_name='room_score')
+    room = models.ForeignKey(QuestRoom, on_delete=models.CASCADE, related_name='questroom_score')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     score = models.PositiveIntegerField(default=0)
     score_before_joining = models.PositiveIntegerField()
