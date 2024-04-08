@@ -11,4 +11,5 @@ urlpatterns = [
     path('rooms/<int:room_id>/code/', views.generate_roomcode, name='generate_room_code'),
     path('rooms/<int:room_id>/make_admin/', views.make_room_member_admin, name='make_room_member_admin'),
     path('rooms/<int:room_id>/remove_member/', views.remove_room_member, name='remove_room_member'),
+    path('rooms/<int:room_id>/update_score/', views.update_room_score, name='update_room_score'),
 ]

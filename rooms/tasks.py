@@ -9,11 +9,11 @@ from .models import User, QuestRoom, RoomCode, QuestRoomScore
 def setup_periodic_tasks(sender, **kwargs):
     print('Setting up periodic tasks...')
     sender.add_periodic_task(
-        crontab(minute='*', hour='*'),
+        crontab(minute=0, hour=0),
         remove_expired_items_task.s(),
     ) 
     sender.add_periodic_task(
-        crontab(minute='*', hour='*'),
+        crontab(minute=50, hour='*'),
         update_all_questroom_scores_task.s(),
     )
 
@@ -29,7 +29,7 @@ def remove_expired_items_task():
 @shared_task
 def set_initial_scores_task(room_id, user_id):
     user = User.objects.get(id=user_id)
-    url = "https://leetcode-stats-api.herokuapp.com/" +  user.leetcode_username
+    url = "https://leetcode-stats-api.herokuapp.com/" + user.leetcode_username
     response = requests.get(url)    
     if response.status_code == 200:
         data = response.json()
@@ -45,6 +45,7 @@ def set_initial_scores_task(room_id, user_id):
     return False
 
     
+@shared_task
 def update_questroom_score_task(room_id):
     questroom = QuestRoom.objects.get(id=room_id) 
     url = "https://leetcode-stats-api.herokuapp.com/"

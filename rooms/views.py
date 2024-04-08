@@ -9,9 +9,10 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 
 from guardian.decorators import permission_required, permission_required_or_403
+from guardian.shortcuts import get_perms
 from .forms import QuestRoomForm
 from .models import QuestRoom, Message, RoomCode, QuestRoomScore
-from .tasks import set_initial_scores_task
+from .tasks import set_initial_scores_task, update_questroom_score_task
 
 User = get_user_model()
 
@@ -62,17 +63,15 @@ def room_detail(request, room_id):
     room = get_object_or_404(QuestRoom, pk=room_id)
     if request.user in room.members.all():
         latest_messages = Message.latest_messages.get_latest_messages(room_id)
-        has_perm_make_admin = request.user.has_perm('rooms.can_make_admin', room)
-        has_perm_remove_user = request.user.has_perm('rooms.can_remove_user', room)
-        has_perm_generate_roomcode = request.user.has_perm('rooms.can_generate_roomcode', room)        
+        user_perms = get_perms(request.user, room)
+        member_scores = QuestRoomScore.objects.filter(room=room).all()
         return render (
             request, 
             'rooms/room_detail.html', {
                 'room': room,
                 'latest_messages': latest_messages,
-                'has_perm_make_admin': has_perm_make_admin,
-                'has_perm_remove_user': has_perm_remove_user,
-                'has_perm_generate_roomcode': has_perm_generate_roomcode,
+                'member_scores': member_scores,
+                'user_perms': user_perms,
             }
         )
     messages.error(request, 'You are not a member of this room')
@@ -126,6 +125,7 @@ def make_room_member_admin(request, room_id):
     return redirect('rooms:room_detail', room_id=room_id)
 
 
+@login_required
 @permission_required('rooms.can_remove_user', (QuestRoom, 'id', 'room_id'))
 def remove_room_member(request, room_id):
     if request.method == 'POST':
@@ -144,3 +144,11 @@ def remove_room_member(request, room_id):
             messages.error(request, 'User is not a member of this room')
     return redirect('rooms:room_detail', room_id=room_id)
         
+
+@login_required
+@permission_required('rooms.view_questroom', (QuestRoom, 'id', 'room_id'))
+def update_room_score(request, room_id):
+    if request.method == 'POST':
+        update_questroom_score_task.delay(room_id)
+        return redirect('rooms:room_detail', room_id=room_id)
+    return redirect('rooms:view_rooms')
