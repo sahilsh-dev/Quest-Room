@@ -12,7 +12,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DEBUG=1
+      - DEBUG=True
       - SECRET_KEY=09dfjsldfjsoiejnwievnwlkdnv
       - ALLOWED_HOSTS=localhost,127.0.0.1
     depends_on:
@@ -22,11 +22,11 @@ services:
     container_name: celery
     build: 
       context: ./
-    command: celery --app=core worker -l INFO -B
+    command: celery -A core worker -l INFO -B -E
     volumes:
       - ./:/usr/src/app
     environment:
-      - DEBUG=1
+      - DEBUG=True
       - SECRET_KEY=09dfjsldfjsoiejnwievnwlkdnv
       - ALLOWED_HOSTS=localhost,127.0.0.1
     depends_on:
