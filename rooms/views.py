@@ -149,7 +149,6 @@ def remove_room_member(request, room_id):
 @permission_required('rooms.view_questroom', (QuestRoom, 'id', 'room_id'))
 def update_room_score(request, room_id):
     if request.method == 'POST':
-        update_questroom_score_task.delay(room_id)
-        # TODO: Send updated scores to room with channels group
-        return redirect('rooms:room_detail', room_id=room_id)
+        update_questroom_score_task.delay(room_id, send_updated=True)
+        return JsonResponse({'message': 'Scores updating?'})
     return redirect('rooms:view_rooms')

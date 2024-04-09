@@ -3,6 +3,8 @@ from django.utils import timezone
 from celery import shared_task, current_app
 from celery.schedules import crontab
 from .models import User, QuestRoom, RoomCode, QuestRoomScore
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 
 @current_app.on_after_finalize.connect
@@ -46,7 +48,7 @@ def set_initial_scores_task(room_id, user_id):
 
     
 @shared_task
-def update_questroom_score_task(room_id):
+def update_questroom_score_task(room_id, send_updated=False):
     questroom = QuestRoom.objects.get(id=room_id) 
     url = "https://leetcode-stats-api.herokuapp.com/"
     for user in questroom.members.all():
@@ -61,10 +63,26 @@ def update_questroom_score_task(room_id):
         else:
             print(f"Failed to update score for {user.leetcode_username}")
     print(f"Updated scores for room - {questroom}")
+    if send_updated:
+        channel_layer = get_channel_layer()
+        group_name = 'chatroom_' + str(room_id)
+        print(group_name)
+        print(f"Sending updated scores for room - {'chatroom_' + str(room_id)}")
+        player_scores = [
+            (member_score.user.username, member_score.score) 
+            for member_score in QuestRoomScore.objects.filter(room_id=room_id).all()
+        ]
+        print(f"Player scores ->> {player_scores}")
+        async_to_sync(channel_layer.group_send) (
+            group_name, {
+                'type': 'update_score_message',
+                'message': 'Hi'
+            }
+        )
 
     
 @shared_task
 def update_all_questroom_scores_task():
     for questroom in QuestRoom.objects.all():
-        update_questroom_score_task(questroom.id)
+        update_questroom_score_task(questroom.id, send_updated=True)
     print(f"Updated scores for all rooms")

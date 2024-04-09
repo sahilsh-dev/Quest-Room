@@ -4,6 +4,7 @@ from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 from .models import Message, QuestRoom
 
+
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
         self.user = self.scope['user']
@@ -26,7 +27,6 @@ class ChatConsumer(WebsocketConsumer):
             'type': 'connection_established',
             'message': 'You are now connected to room - ' + self.room_group_name 
         }))
-
         user_connected_time = timezone.now()
         async_to_sync(self.channel_layer.group_send) (
             self.room_group_name, {
@@ -116,3 +116,10 @@ class ChatConsumer(WebsocketConsumer):
             created_at=created_at
         )
         message.save()
+
+    def update_score_message(self, event):
+        print('Sending updated scores................................................')
+        self.send(text_data=json.dumps({
+            'type': 'update_score',
+            'message': event['message']
+        }))

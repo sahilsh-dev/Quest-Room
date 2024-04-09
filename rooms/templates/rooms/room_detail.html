@@ -45,13 +45,19 @@
             {% endfor %}
         </ul>
         <p>Scores:</p>
-        <ul>
+        <ul id="member-scores">
             {% for member_score in member_scores %}
                 <li>
                     {{ member_score.user.username }}: {{ member_score.score }}
                 </li>
             {% endfor %}
         </ul>
+        {% if 'view_questroom' in user_perms %}
+            <form id="update-score-form" action="{% url 'rooms:update_room_score' room.id %}" method="post">
+                {% csrf_token %}
+                <input type="submit" value="Update Scores">
+            </form>
+        {% endif %}
         <hr>
         {% if 'can_generate_roomcode' in user_perms %}
             <h2>Generate Invite Code</h2>
@@ -63,13 +69,7 @@
             <p id="roomInviteCode"></p>
             <hr>
         {% endif %}
-        {% if 'view_questroom' in user_perms %}
-            <form action="{% url 'rooms:update_room_score' room.id %}" method="post">
-                {% csrf_token %}
-                <input type="submit" value="Update Scores">
-            </form>
-        {% endif %}
-        <hr> 
+
         <h1>Let's Chat</h1>
         <div id="messages">
             {% for message in latest_messages reversed %}
@@ -108,9 +108,11 @@
         const url = `ws://${window.location.host}/ws/chat/{{ room.id }}/`; 
         const chatSocket = new WebSocket(url);
         const currentUsername = '{{ request.user.username }}';
+        const memberScores = document.querySelector('#member-scores');
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
+            console.log(data);
             const messages = document.querySelector('#messages');
             if (data.type === 'chat') {
                 messages.insertAdjacentHTML(
@@ -137,6 +139,9 @@
                         <p>${data.message.content} <span> ${data.message.message_time}</span> </p>
                     </div>`
                 )
+            }
+            else if (data.type === 'update_score') {
+                memberScores.content = data.content;
             }
         }
 
@@ -175,6 +180,21 @@
                 .then(data => {
                     const roomInviteCode = document.querySelector('#roomInviteCode');
                     roomInviteCode.textContent = `Invite Code: ${data.code}`;
+                })
+            })
+        }
+
+        const updateScoreForm = document.querySelector('#update-score-form');
+        if (updateScoreForm) {
+            updateScoreForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                fetch(e.target.action, {
+                    method: 'POST',
+                    body: new FormData(e.target)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
                 })
             })
         }
