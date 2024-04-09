@@ -140,7 +140,13 @@
                 )
             }
             else if (data.type === 'update_score') {
-                console.log(data.member_scores);
+                memberScores.innerHTML = '';
+                data.member_scores.forEach(element => {
+                    memberScores.insertAdjacentHTML(
+                        'beforeend',
+                        `<li>${element[0]}: ${element[1]}</li>`
+                    )
+                });
             }
         }
 

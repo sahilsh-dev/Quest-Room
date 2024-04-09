@@ -72,6 +72,7 @@ def update_questroom_score_task(room_id, send_updated=False):
             if data['status'] == 'success':
                 curr_problem_solved = data['totalSolved']
                 member.score = curr_problem_solved - member.score_before_joining
+                member.save()
                 print(f"Updated score {member}")
         else:
             print(f"Failed to update score for {member.user.leetcode_username}")
