@@ -150,5 +150,5 @@ def remove_room_member(request, room_id):
 def update_room_score(request, room_id):
     if request.method == 'POST':
         update_questroom_score_task.delay(room_id, send_updated=True)
-        return JsonResponse({'message': 'Scores updating?'})
+        return JsonResponse({'message': 'Fetching latest scores...'})
     return redirect('rooms:view_rooms')

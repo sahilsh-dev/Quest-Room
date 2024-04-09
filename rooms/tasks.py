@@ -46,41 +46,39 @@ def set_initial_scores_task(room_id, user_id):
             return True 
     return False
 
-    
+
+def send_updated_scores_to_room(room_id, member_scores):
+    channel_layer = get_channel_layer()
+    player_scores = [
+        (member.user.username, member.score) 
+        for member in member_scores
+    ]
+    async_to_sync(channel_layer.group_send) (
+        'chatroom_' + str(room_id), {
+            'type': 'update_score_message',
+            'message': player_scores
+        }
+    ) 
+
+
 @shared_task
 def update_questroom_score_task(room_id, send_updated=False):
-    questroom = QuestRoom.objects.get(id=room_id) 
+    questroom_member_scores = QuestRoomScore.objects.filter(room_id=room_id).all()
     url = "https://leetcode-stats-api.herokuapp.com/"
-    for user in questroom.members.all():
-        response = requests.get(url + user.leetcode_username)
+    for member in questroom_member_scores:
+        response = requests.get(url + member.user.leetcode_username)
         if response.status_code == 200:
             data = response.json()
             if data['status'] == 'success':
-                questroom_score = QuestRoomScore.objects.get(room_id=room_id, user=user)
                 curr_problem_solved = data['totalSolved']
-                questroom_score.score = curr_problem_solved - questroom_score.score_before_joining
-                print(f"Updated score {questroom_score}")
+                member.score = curr_problem_solved - member.score_before_joining
+                print(f"Updated score {member}")
         else:
-            print(f"Failed to update score for {user.leetcode_username}")
-    print(f"Updated scores for room - {questroom}")
+            print(f"Failed to update score for {member.user.leetcode_username}")
     if send_updated:
-        channel_layer = get_channel_layer()
-        group_name = 'chatroom_' + str(room_id)
-        print(group_name)
-        print(f"Sending updated scores for room - {'chatroom_' + str(room_id)}")
-        player_scores = [
-            (member_score.user.username, member_score.score) 
-            for member_score in QuestRoomScore.objects.filter(room_id=room_id).all()
-        ]
-        print(f"Player scores ->> {player_scores}")
-        async_to_sync(channel_layer.group_send) (
-            group_name, {
-                'type': 'update_score_message',
-                'message': 'Hi'
-            }
-        )
-
+        send_updated_scores_to_room(room_id, questroom_member_scores)
     
+
 @shared_task
 def update_all_questroom_scores_task():
     for questroom in QuestRoom.objects.all():

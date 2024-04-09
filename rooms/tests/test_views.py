@@ -348,4 +348,4 @@ class RemoveRoomMemberViewTests(TestCase):
         self.assertRedirects(response, reverse('rooms:room_detail', args=[self.room.id]))
         self.assertFalse(self.room.members.filter(id=user2.id).exists())
         self.assertFalse(self.room.admins.filter(id=user2.id).exists()) 
-        
+       
