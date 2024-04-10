@@ -32,5 +32,5 @@ The Quest room website utilizes the following technologies:
 To deploy the application using Docker, follow these steps:<br>
 Before following these steps, make sure you have docker installed. Get docker [here](https://www.docker.com/get-started/).
 1. Clone the repository.
-2. Build and run the project with `docker-compose up --build`
+2. Build and run the project with `docker compose up --build`
 3. Visit `http://localhost:8000/` in your web browser.
