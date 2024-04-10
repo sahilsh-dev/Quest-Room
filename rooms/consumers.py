@@ -118,7 +118,6 @@ class ChatConsumer(WebsocketConsumer):
         message.save()
 
     def update_score_message(self, event):
-        print('Sent')
         self.send(text_data=json.dumps({
             'type': 'update_score',
             'member_scores': event['message']

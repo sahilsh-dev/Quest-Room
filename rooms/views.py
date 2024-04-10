@@ -152,3 +152,14 @@ def update_room_score(request, room_id):
         update_questroom_score_task.delay(room_id, send_updated=True)
         return JsonResponse({'message': 'Fetching latest scores...'})
     return redirect('rooms:view_rooms')
+
+
+@login_required
+def delete_room(request, room_id):
+    room = get_object_or_404(QuestRoom, pk=room_id)
+    if request.user == room.created_by:
+        room.delete()
+        messages.success(request, 'Room deleted successfully')
+    else:
+        messages.error(request, 'Only room creator can delete the room')
+    return redirect('rooms:view_rooms')

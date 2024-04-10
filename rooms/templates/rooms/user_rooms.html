@@ -17,6 +17,10 @@
                     {% for room in created_rooms %}
                         <li>
                             <a href="{% url 'rooms:room_detail' room_id=room.id %}">{{ room.name }}</a>
+                            <form action="{% url 'rooms:delete_room' room_id=room.id %}" method="post">
+                                {% csrf_token %}
+                                <input type="submit" value="🗑️">
+                            </form>
                         </li>
                     {% endfor %}
                 </ul>
