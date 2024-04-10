@@ -16,3 +16,21 @@
 ## About 💡
 The project is currently in development but majority of the chat room feature have been added.
 The project is built using Django and Django Channels for real-time chat feature. Redis is used as a channel layer for Django Channels. It uses Websockets for real-time communication between the server and the client with Postgres as the database.
+
+## Technologies Used 🚀
+The Quest room website utilizes the following technologies:
+
+- [Django](https://www.djangoproject.com/): The main web framework.
+- [Django Channels](https://github.com/django/channels): The WebSocket framework.
+- [Celery](http://www.celeryproject.org/): An asynchronous task queue.
+- [Redis](https://redis.io/): A message broker and cache backend.
+- [Daphne](https://github.com/django/daphne): An HTTP and WebSocket protocol server.
+- [Docker](https://www.docker.com): Lightweight Container Management
+
+## Deployment ✨
+### Docker 🐋
+To deploy the application using Docker, follow these steps:<br>
+Before following these steps, make sure you have docker installed. Get docker [here](https://www.docker.com/get-started/).
+1. Clone the repository.
+2. Build and run the project with `docker-compose up --build`
+3. Visit `http://localhost:8000/` in your web browser.
